@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2f6c9e" />
+  <title>Piloto Aviación Policial</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css?v=40" />
+</head>
+<body>
+  <div class="sky-layer"></div>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">
+        <div class="logo-mark">PAP</div>
+      </div>
+      <div>
+        <div class="eyebrow">AVIACIÓN POLICIAL · CONTROL OPERACIONAL</div>
+        <h1>Piloto Aviación Policial</h1>
+        <p>App personal para piloto · control operacional · horas, fatiga y peso y balance</p>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section id="home" class="screen active">
+      <div class="hero-card">
+        <div class="hero-copy">
+          <span class="hero-badge">Aviación policial · control personal · v2.3</span>
+          <h2>Centro de control del vuelo</h2>
+          <p>Diseño inspirado en la aviación policial: una interfaz más clara, luminosa y profesional, con identidad aeronáutica y enfoque en operación, disciplina y consulta rápida.</p>
+          <div class="hero-tags">
+            <span class="pill gold">C-208 Series</span>
+            <span class="pill">Fatiga 8 / 15 días</span>
+            <span class="pill">PDF digital alineado</span>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="art-radar"></div>
+          <div class="art-plane">✈</div>
+          <div class="art-wings"></div>
+        </div>
+      </div>
+
+      <div class="status-strip">
+        <div class="strip-card">
+          <span class="strip-label">Perfil</span>
+          <strong>Piloto / Operador</strong>
+        </div>
+        <div class="strip-card">
+          <span class="strip-label">Lógica</span>
+          <strong>Horas · Fatiga · W&amp;B</strong>
+        </div>
+        <div class="strip-card">
+          <span class="strip-label">Salida</span>
+          <strong>Reporte y PDF</strong>
+        </div>
+      </div>
+
+      <div id="backupReminder" class="notice hidden"></div>
+
+
+
+      <div class="dashboard-grid">
+        <div class="card dashboard-card accent">
+          <span class="strip-label">Resumen general</span>
+          <div class="dashboard-number" id="homeTotalFlights">0</div>
+          <p>Total de vuelos registrados</p>
+        </div>
+        <div class="card dashboard-card">
+          <span class="strip-label">Horas máquina</span>
+          <div class="dashboard-number" id="homeMachineHours">0.0 h</div>
+          <p>Histórico acumulado</p>
+        </div>
+        <div class="card dashboard-card">
+          <span class="strip-label">Disponible 8 días</span>
+          <div class="dashboard-number" id="homeAvailable8">30.0 h</div>
+          <p>Control de fatiga activo</p>
+        </div>
+        <div class="card dashboard-card">
+          <span class="strip-label">Último vuelo</span>
+          <div class="dashboard-mini" id="homeLastFlight">Sin registros aún</div>
+          <p>Ruta y aeronave más reciente</p>
+        </div>
+      </div>
+
+      <div class="operations-banner card">
+        <div>
+          <span class="screen-kicker">Bitácora operacional</span>
+          <h3>Panel operacional del piloto</h3>
+          <p>Interfaz rediseñada con un estilo más limpio, profesional y equilibrado, conservando el enfoque técnico para vuelo, horas, fatiga y peso y balance.</p>
+        </div>
+        <div class="operations-side">
+          <span class="pill gold">Piloto</span>
+          <span class="pill">Disciplina</span>
+          <span class="pill">Operación</span>
+        </div>
+      </div>
+
+      <div class="menu-grid">
+        <button class="menu-button" data-go="weightBalance">
+          <span class="menu-icon">⚖</span>
+          <span class="menu-copy"><strong>Peso y Balance</strong><small>Cálculo por estaciones y PDF digital alineado</small></span>
+        </button>
+        <button class="menu-button" data-go="registerFlight">
+          <span class="menu-icon">✈</span>
+          <span class="menu-copy"><strong>Registrar Nuevo Vuelo</strong><small>Horas máquina y horas hombre</small></span>
+        </button>
+        <button class="menu-button" data-go="fatigue">
+          <span class="menu-icon">⏱</span>
+          <span class="menu-copy"><strong>Fatiga</strong><small>Disponibilidad 8 y 15 días · recargas</small></span>
+        </button>
+        <button class="menu-button" data-go="hoursReport">
+          <span class="menu-icon">📊</span>
+          <span class="menu-copy"><strong>Reporte Horas</strong><small>Totales por filtro opcional</small></span>
+        </button>
+        <button class="menu-button secondary" data-go="settings">
+          <span class="menu-icon">⚙</span>
+          <span class="menu-copy"><strong>Configuración</strong><small>Perfil, respaldo y aeronaves</small></span>
+        </button>
+      </div>
+    </section>
+
+    <section id="registerFlight" class="screen">
+      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Módulo de registro</span><h2>Registrar Nuevo Vuelo</h2></div></div>
+      <form id="flightForm" class="card form-grid">
+        <label>Fecha<input type="date" id="flightDate" required /></label>
+        <label>Aeronave<select id="flightAircraft" required></select></label>
+        <label>Tipo de aeronave<input id="flightAircraftType" readonly /></label>
+        <label>Origen<input id="flightOrigin" placeholder="SKBO" /></label>
+        <label>Destino<input id="flightDestination" placeholder="SKCL" /></label>
+        <label>Posición de vuelo<select id="flightPosition" required></select></label>
+        <label>Horas máquina<input id="machineHours" type="number" step="0.1" min="0" placeholder="1.0" required /></label>
+        <label>Horas hombre<input id="manHours" type="number" step="0.1" min="0" placeholder="1.3" required /></label>
+        <div class="form-actions"><button type="submit">Guardar vuelo</button></div>
+      </form>
+      <div id="flightSaved" class="notice hidden"></div>
+    </section>
+
+    <section id="fatigue" class="screen">
+      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Disponibilidad operacional</span><h2>Fatiga</h2></div></div>
+      <div id="fatigueContent" class="grid-two"></div>
+      <div class="card">
+        <h3>Próximas recargas</h3>
+        <p class="card-subtitle">Horas máquina que se liberan automáticamente al salir de la ventana móvil.</p>
+        <div id="rechargeList"></div>
+      </div>
+    </section>
+
+    <section id="hoursReport" class="screen">
+      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Consulta consolidada</span><h2>Reporte Horas</h2></div></div>
+      <form id="reportForm" class="card form-grid">
+        <label>Posición de vuelo<select id="reportPosition"></select></label>
+        <label>Tipo de aeronave<select id="reportAircraftType"></select></label>
+        <label>Aeronave<select id="reportAircraft"></select></label>
+        <label>Fecha desde<input type="date" id="reportDateFrom" /></label>
+        <label>Fecha hasta<input type="date" id="reportDateTo" /></label>
+        <div class="form-actions"><button type="submit">Calcular horas</button><button type="button" id="clearReport" class="ghost">Limpiar filtros</button></div>
+      </form>
+      <div id="reportResult" class="card result-card"></div>
+      <div class="card">
+        <h3>Configurar horas iniciales</h3>
+        <p class="card-subtitle">Se cargan una sola vez y quedan incorporadas al total normal del reporte de horas. PA y AL corresponden a entrenamiento inicial y también suman al total general.</p>
+        <form id="initialHoursForm" class="form-grid">
+          <label>Fecha de corte<input type="date" id="initialCutoffDate" required /></label>
+          <label>Tipo / aeronave histórica<input id="initialAircraftType" list="initialAircraftTypeList" placeholder="Ej: CARAVAN, B-1900, C-172, C-206G" required /></label>
+          <datalist id="initialAircraftTypeList"></datalist>
+          <label>Matrícula opcional<input id="initialAircraftRegistration" placeholder="Ej: PNC3018" /></label>
+          <label>Posición<select id="initialPosition" required></select></label>
+          <label>Horas hombre<input id="initialManHours" type="number" step="0.1" min="0" placeholder="0.0" /></label>
+          <label>Horas máquina opcional<input id="initialMachineHours" type="number" step="0.1" min="0" placeholder="0.0" /></label>
+          <div class="form-actions"><button type="submit">Agregar horas iniciales</button><button type="button" id="clearInitialHours" class="danger">Borrar horas iniciales</button></div>
+        </form>
+        <div id="initialHoursList"></div>
+      </div>
+    </section>
+
+    <section id="weightBalance" class="screen">
+      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Control de cargue</span><h2>Peso y Balance</h2></div></div>
+      <div class="warning">Prototipo inicial. Los datos técnicos importados del Excel deben validarse contra documentos oficiales antes de uso operacional.</div>
+      <form id="wbForm">
+        <div class="card form-grid">
+          <label>DATE<input type="date" id="wbDate" required /></label>
+          <label>AERONAVE<select id="wbAircraft" required></select></label>
+          <label>FROM<input id="wbFrom" placeholder="SKBO" /></label>
+          <label>TO<input id="wbTo" placeholder="SKCL" /></label>
+          <label>MISIÓN<input id="wbMission" placeholder="Misión" /></label>
+          <label>REF<input id="wbRef" placeholder="Opcional" /></label>
+        </div>
+        <div id="wbStations"></div>
+        <div class="card form-grid">
+          <h3>Combustible</h3>
+          <label>FUEL (LBS)<input type="number" step="0.1" min="0" id="fuelRamp" value="0" /></label>
+          <label>TAXI FUEL (LBS) <small>siempre resta</small><input type="number" step="0.1" min="0" id="taxiFuel" value="35" /></label>
+          <label>LESS EXPENDABLES <small>siempre resta</small><input type="number" step="0.1" min="0" id="lessExpendables" value="0" /></label>
+        </div>
+        <div class="card form-grid">
+          <h3>Firmas del PDF</h3>
+          <label>APPROVED BY - RANK<input id="sigApprovedRank" placeholder="Ej: MY." /></label>
+          <label>APPROVED BY - NAME<input id="sigApprovedName" placeholder="Ej: NOMBRE APELLIDO" /></label>
+          <label>COMPUTE BY - RANK<input id="sigComputeRank" placeholder="Se puede tomar de Mi perfil" /></label>
+          <label>COMPUTE BY - NAME<input id="sigComputeName" placeholder="Se puede tomar de Mi perfil" /></label>
+          <label>TECHNICAL - RANK<input id="sigTechnicalRank" placeholder="Ej: TE." /></label>
+          <label>TECHNICAL - NAME<input id="sigTechnicalName" placeholder="Ej: NOMBRE APELLIDO" /></label>
+          <p class="muted">La app plasmará en el PDF el RANK y el NAME. La casilla SIGNATURE queda libre para firmar a mano.</p>
+          <div class="form-actions"><button type="submit">Calcular</button></div>
+        </div>
+      </form>
+      <div id="wbResult" class="card result-card"></div>
+    </section>
+
+    <section id="settings" class="screen">
+      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Ajustes y respaldo</span><h2>Configuración</h2></div></div>
+      <div class="card">
+        <h3>Mi perfil</h3>
+        <div class="form-grid">
+          <label>Nombre<input id="profileName" placeholder="Nombre" /></label>
+          <label>Grado<input id="profileRank" placeholder="Grado" /></label>
+          <label>Licencia<input id="profileLicense" placeholder="Licencia" /></label>
+          <label>Unidad<input id="profileUnit" placeholder="Unidad" /></label>
+          <label>Correo Google de respaldo<input id="profileEmail" type="email" placeholder="correo@gmail.com" /></label>
+        </div>
+        <div class="form-actions"><button id="saveProfile">Guardar perfil</button></div>
+      </div>
+      <div class="card">
+        <h3>Datos almacenados</h3>
+        <p class="card-subtitle">Respaldo local manual para guardar en Archivos, iCloud, OneDrive o correo.</p>
+        <button id="exportData" class="ghost">Exportar respaldo JSON</button>
+        <label>Importar respaldo JSON<input id="importDataFile" type="file" accept="application/json,.json" /></label>
+        <button id="deleteAll" class="danger">Borrar todos los vuelos guardados</button>
+      </div>
+      <div class="card">
+        <h3>Respaldo en Google Drive</h3>
+        <p class="card-subtitle">Guarda y restaura el perfil, horas iniciales y vuelos en el Drive del piloto. Para funcionar debe estar publicada en HTTPS y tener configurado el Client ID de Google.</p>
+        <div id="driveStatus" class="notice soft">Google Drive sin conectar.</div>
+        <div class="form-grid">
+          <label>Google OAuth Client ID<input id="googleClientId" placeholder="Se configura una vez antes de publicar" /></label>
+          <label>Días para recordar respaldo<select id="backupReminderDays"><option value="3">Cada 3 días</option><option value="5">Cada 5 días</option></select></label>
+          <label class="checkbox-line"><input id="driveAutoSync" type="checkbox" /> Sincronizar automáticamente cuando sea posible</label>
+        </div>
+        <div class="form-actions">
+          <button id="saveDriveSettings" class="ghost">Guardar configuración Drive</button>
+          <button id="connectDrive" type="button">Conectar Google Drive</button>
+          <button id="driveBackupNow" type="button" class="ghost">Guardar respaldo en Drive</button>
+          <button id="driveRestoreNow" type="button" class="ghost">Restaurar desde Drive</button>
+        </div>
+        <p class="muted">El archivo se guarda en la carpeta privada de datos de la app dentro de Google Drive. Para recuperar en otro teléfono, se debe entrar con el mismo correo de Google.</p>
+      </div>
+      <div class="card">
+        <h3>Aeronaves iniciales</h3>
+        <div id="aircraftList"></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="statCard">
+    <div class="card stat-card"><h3></h3><p class="big"></p><p></p><p></p><p></p></div>
+  </template>
+
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script>if(!window.PDFLib){document.write('<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"><\/script>')}</script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="app.js?v=40"></script>
+</body>
+</html>

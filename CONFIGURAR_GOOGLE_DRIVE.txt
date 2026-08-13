@@ -1,0 +1,30 @@
+CONFIGURACIÓN GOOGLE DRIVE - Piloto Aviación Policial v4.0
+
+Para que el respaldo en Google Drive funcione al difundir la app, se requiere crear un OAuth Client ID de Google y publicarla en HTTPS.
+
+1. Crear un proyecto en Google Cloud Console.
+2. Activar Google Drive API.
+3. Configurar la pantalla de consentimiento OAuth.
+4. Crear una credencial OAuth Client ID tipo Web application.
+5. Agregar en Authorized JavaScript origins el dominio donde se publicará la app, por ejemplo:
+   https://TU_USUARIO.github.io
+   o el dominio HTTPS que uses.
+6. Copiar el Client ID.
+7. En app.js, reemplazar:
+   const GOOGLE_DRIVE_CLIENT_ID = '';
+   por:
+   const GOOGLE_DRIVE_CLIENT_ID = 'TU_CLIENT_ID.apps.googleusercontent.com';
+
+La app usa el alcance:
+https://www.googleapis.com/auth/drive.appdata
+
+Ese alcance guarda el respaldo en la carpeta privada de datos de la aplicación dentro del Google Drive del piloto. El archivo no queda mezclado con documentos normales del usuario.
+
+Archivo de respaldo usado por la app:
+piloto_aviacion_policial_backup.json
+
+Para recuperar en otro teléfono:
+- Abrir la app publicada en HTTPS.
+- Entrar a Configuración.
+- Conectar Google Drive con la misma cuenta.
+- Tocar Restaurar desde Drive.
