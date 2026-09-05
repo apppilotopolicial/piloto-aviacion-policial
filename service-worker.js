@@ -1,5 +1,5 @@
-const CACHE = 'tripulante-aviacion-policial-v44';
-const ASSETS = ['./','./index.html','./styles.css?v=44','./app.js?v=44','./manifest.json','./icon.svg','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./brand-wings.svg','./hero-aviation.svg','./peso-balance-template.pdf','./left_base_top.png','./left_base_bottom.png','./left_0254_top.png','./left_0254_bottom.png','./left_3018_top.png','./left_3018_bottom.png'];
+const CACHE = 'tripulante-aviacion-policial-v45';
+const ASSETS = ['./','./index.html','./styles.css?v=45','./app.js?v=45','./manifest.json','./icon.svg','./icon-192.png','./icon-512.png','./apple-touch-icon.png','./brand-wings.svg','./hero-aviation.svg','./hero-photo.jpg','./peso-balance-template.pdf','./left_base_top.png','./left_base_bottom.png','./left_0254_top.png','./left_0254_bottom.png','./left_3018_top.png','./left_3018_bottom.png'];
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));

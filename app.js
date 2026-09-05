@@ -50,7 +50,7 @@ const AIRCRAFTS = [
 const STORAGE_KEY = 'cpc_flights_v1';
 const PROFILE_KEY = 'cpc_profile_v1';
 const HISTORICAL_HOURS_KEY = 'cpc_historical_hours_v1';
-const APP_VERSION = 'v4.4';
+const APP_VERSION = 'v4.5';
 const DRIVE_SETTINGS_KEY = 'pap_drive_settings_v1';
 const LOCAL_BACKUP_KEY = 'pap_local_backup_v1';
 const GOOGLE_DRIVE_CLIENT_ID = ''; // Configurar aquí antes de publicar en GitHub Pages. También se puede ingresar desde Configuración.
@@ -579,8 +579,20 @@ function renderHomeDashboard(){
   const cfg = getAircraftConfig();
   const pilotEl = document.getElementById('homePilotIdentity');
   const mainEl = document.getElementById('homeMainAircraftCard');
-  if(pilotEl) pilotEl.textContent = [profile.rank, profile.name].filter(Boolean).join(' ') || 'Tripulante';
-  if(mainEl) mainEl.textContent = `Aeronave principal: ${cfg.mainRegistration || 'No configurada'}`;
+  const pilotName = [profile.rank, profile.name].filter(Boolean).join(' ') || 'Tripulante';
+  const aircraftLine = `Aeronave principal: ${cfg.mainRegistration || 'No configurada'}`;
+  if(pilotEl) pilotEl.textContent = pilotName;
+  if(mainEl) mainEl.textContent = aircraftLine;
+  const pilotMirror = document.getElementById('homePilotIdentityMirror');
+  const mainMirror = document.getElementById('homeMainAircraftMirror');
+  if(pilotMirror) pilotMirror.textContent = pilotName;
+  if(mainMirror) mainMirror.textContent = aircraftLine;
+  const driveMini = document.getElementById('homeDriveMini');
+  if(driveMini){
+    const ds = getDriveSettings();
+    driveMini.textContent = driveAccessToken ? 'Conectado' : (ds.lastDriveBackupAt ? 'Con copia' : 'No conectado');
+    driveMini.className = driveAccessToken || ds.lastDriveBackupAt ? 'ok' : 'warn';
+  }
 }
 
 function renderFatigue(){
@@ -1456,7 +1468,7 @@ function renderBackupReminder(){
   const last = s.lastDriveBackupAt || s.lastLocalBackupAt;
   const age = last ? `${Math.floor(daysSince(last))} día(s)` : 'sin copia previa';
   el.classList.remove('hidden');
-  el.innerHTML = `<b>Respaldo pendiente</b><br>Última sincronización: ${escapeHtml(age)}. Actualiza tu copia para proteger perfil, horas y vuelos.<div class="form-actions"><button type="button" id="reminderDriveBackup">Guardar en Google Drive</button><button type="button" id="reminderLocalBackup" class="ghost">Exportar JSON</button><button type="button" id="reminderSnooze" class="ghost">Recordarme después</button></div>`;
+  el.innerHTML = `<b>Respaldo pendiente</b><br><span>Última copia: ${escapeHtml(age)}.</span><div class="form-actions"><button type="button" id="reminderDriveBackup">Conectar / guardar Drive</button><button type="button" id="reminderLocalBackup" class="ghost">Exportar JSON</button><button type="button" id="reminderSnooze" class="ghost">Después</button></div>`;
   const driveBtn = document.getElementById('reminderDriveBackup');
   const localBtn = document.getElementById('reminderLocalBackup');
   const snoozeBtn = document.getElementById('reminderSnooze');
@@ -1466,7 +1478,7 @@ function renderBackupReminder(){
 }
 async function requestDriveToken(interactive=true){
   const clientId = getConfiguredGoogleClientId();
-  if (!clientId) throw new Error('Falta configurar el Google OAuth Client ID.');
+  if (!clientId) throw new Error('Falta configurar el Google Client ID. Es una configuración técnica necesaria para que Drive funcione; escribir el correo no conecta Drive.');
   if (!window.google || !google.accounts || !google.accounts.oauth2) throw new Error('No cargó Google Identity Services. Verifique conexión a internet y que la app esté publicada en HTTPS.');
   return await new Promise((resolve, reject) => {
     const tokenClient = google.accounts.oauth2.initTokenClient({

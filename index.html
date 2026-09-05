@@ -7,7 +7,7 @@
   <title>Tripulante Aviación Policial</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-  <link rel="stylesheet" href="styles.css?v=44" />
+  <link rel="stylesheet" href="styles.css?v=45" />
 </head>
 <body>
   <div class="sky-layer"></div>
@@ -17,9 +17,8 @@
         <div class="logo-mark"><span>✦</span></div>
       </div>
       <div>
-        <div class="eyebrow">Gestión de vuelo</div>
         <h1>Tripulante Aviación Policial</h1>
-        <p>Vuelos, horas, fatiga y peso y balance.</p>
+        <p>Vuelos · horas · fatiga · W&amp;B</p>
       </div>
     </div>
   </header>
@@ -28,14 +27,14 @@
   <div id="onboardingGate" class="onboarding-gate hidden">
     <div class="onboarding-card">
       <div class="onboarding-top">
-        <span class="hero-badge">Configuración inicial</span>
-        <strong>Tripulante Aviación Policial</strong>
+        <span class="hero-badge">Inicio</span>
+        <strong>Configura tu perfil</strong>
       </div>
 
       <div class="onboard-step active" data-step="welcome">
-        <div class="welcome-emblem"><img src="brand-wings.svg" alt="" /></div>
+        <div class="welcome-emblem"><img src="icon-192.png" alt="" /></div>
         <h2>Tripulante Aviación Policial</h2>
-        <p class="welcome-subtitle">Gestión personal de vuelos, horas, fatiga y peso y balance.</p>
+        <p class="welcome-subtitle">Vuelos · horas · fatiga · peso y balance.</p>
         <div class="form-actions stacked-actions">
           <button type="button" id="onboardCreateProfile">Crear perfil</button>
           <button type="button" id="onboardRestoreProfile" class="ghost">Restaurar perfil</button>
@@ -44,7 +43,7 @@
 
       <div class="onboard-step" data-step="profile">
         <h2>Perfil del tripulante</h2>
-        <p>Ingresa la información básica del tripulante.</p>
+        <p>Datos básicos para iniciar.</p>
         <div class="form-grid">
           <label>Grado<input id="onboardRank" placeholder="Ej: MY" /></label>
           <label>Nombre completo<input id="onboardName" placeholder="Nombre completo" /></label>
@@ -59,8 +58,8 @@
 
       <div class="onboard-step" data-step="drive">
         <h2>Respaldo y conservación</h2>
-        <p>Conecta tu cuenta Google para respaldar y recuperar tus datos.</p>
-        <div class="notice soft">Escribir el correo no conecta Drive. Debes autorizar la cuenta con el botón. Sin Drive, los datos quedan solo en este dispositivo y pueden perderse.</div>
+        <p>Autoriza Google Drive para guardar y recuperar tu información.</p>
+        <div class="notice soft">El correo no conecta Drive. Debes tocar Conectar Google Drive y autorizar la cuenta. Sin esa autorización, los datos quedan solo en este dispositivo.</div>
         <div class="form-actions stacked-actions">
           <button type="button" id="onboardConnectDrive">Conectar Google Drive</button>
           <button type="button" id="onboardContinueLocal" class="ghost">Usar solo este dispositivo</button>
@@ -153,97 +152,78 @@
 
   <main id="app">
     <section id="home" class="screen active">
-      <div class="hero-card premium-home">
-        <div class="hero-copy">
+      <div class="home-hero-card">
+        <div class="home-brand-mini">
+          <img src="icon-192.png" alt="" />
+          <span>Tripulante Aviación Policial</span>
+        </div>
+        <div class="home-hero-copy">
           <span class="hero-badge">Inicio</span>
-          <h2>Tripulante Aviación Policial</h2>
-          <p>Gestión personal de vuelos, horas, fatiga y peso y balance.</p>
-          <div class="profile-flight-card">
-            <div class="pilot-avatar">✈</div>
-            <div>
-              <strong id="homePilotIdentity">Tripulante</strong>
-              <small id="homeMainAircraftCard">Aeronave principal: PNC3018</small>
-            </div>
-            <div class="sync-chip"><span></span>Respaldo</div>
-          </div>
-          <div class="hero-tags">
-            <span class="pill gold">Vuelos</span>
-            <span class="pill">Horas</span>
-            <span class="pill">Respaldo</span>
-          </div>
+          <h2>Hola, <span id="homePilotIdentity">Tripulante</span></h2>
+          <p id="homeMainAircraftCard">Aeronave principal: PNC3018</p>
         </div>
       </div>
 
-      <div class="status-strip">
-        <div class="strip-card">
-          <span class="strip-label">Perfil</span>
-          <strong>Tripulante</strong>
+      <div class="profile-overview-card">
+        <div class="pilot-avatar">✈</div>
+        <div class="profile-main-text">
+          <span>Perfil activo</span>
+          <strong id="homePilotIdentityMirror">Tripulante</strong>
+          <small id="homeMainAircraftMirror">Aeronave principal: PNC3018</small>
         </div>
-        <div class="strip-card">
-          <span class="strip-label">Módulos</span>
-          <strong>Horas · Fatiga · W&amp;B</strong>
-        </div>
-        <div class="strip-card">
-          <span class="strip-label">Respaldo</span>
-          <strong>Drive / Local</strong>
+        <div class="drive-status-mini">
+          <span>Drive</span>
+          <strong id="homeDriveMini">No conectado</strong>
         </div>
       </div>
 
-      <div id="backupReminder" class="notice hidden"></div>
-
-
-
-      <div class="dashboard-grid">
-        <div class="card dashboard-card accent">
-          <span class="strip-label">Resumen general</span>
-          <div class="dashboard-number" id="homeTotalFlights">0</div>
-          <p>Total de vuelos registrados</p>
+      <div class="quick-stats clean-stats">
+        <div class="clean-stat">
+          <span>Vuelos</span>
+          <strong id="homeTotalFlights">0</strong>
         </div>
-        <div class="card dashboard-card">
-          <span class="strip-label">Horas máquina</span>
-          <div class="dashboard-number" id="homeMachineHours">0.0 h</div>
-          <p>Histórico acumulado</p>
+        <div class="clean-stat">
+          <span>Horas máquina</span>
+          <strong id="homeMachineHours">0.0 h</strong>
         </div>
-        <div class="card dashboard-card">
-          <span class="strip-label">Disponible 8 días</span>
-          <div class="dashboard-number" id="homeAvailable8">30.0 h</div>
-          <p>Control de fatiga activo</p>
-        </div>
-        <div class="card dashboard-card">
-          <span class="strip-label">Último vuelo</span>
-          <div class="dashboard-mini" id="homeLastFlight">Sin registros aún</div>
-          <p>Ruta y aeronave más reciente</p>
+        <div class="clean-stat">
+          <span>Disponible 8 días</span>
+          <strong id="homeAvailable8">30.0 h</strong>
         </div>
       </div>
 
-      <div class="operations-banner card compact-banner">
-        <div>
-          <span class="screen-kicker">Panel principal</span>
-          <h3>Herramientas activas</h3>
-        </div>
+      <div class="section-heading-row">
+        <h3>Módulos</h3>
       </div>
 
-      <div class="menu-grid">
-        <button class="menu-button" data-go="weightBalance">
-          <span class="menu-icon">⚖</span>
-          <span class="menu-copy"><strong>Peso y Balance</strong><small>Cálculo y formato PDF</small></span>
+      <div class="module-grid-pro">
+        <button class="module-card-pro" data-go="weightBalance">
+          <span class="module-icon-pro">⚖</span>
+          <span><strong>Peso y Balance</strong><small>Formato operativo</small></span>
         </button>
-        <button class="menu-button" data-go="registerFlight">
-          <span class="menu-icon">✈</span>
-          <span class="menu-copy"><strong>Registrar vuelo</strong><small>Horas máquina y horas hombre</small></span>
+        <button class="module-card-pro" data-go="registerFlight">
+          <span class="module-icon-pro">✈</span>
+          <span><strong>Registrar vuelo</strong><small>Bitácora personal</small></span>
         </button>
-        <button class="menu-button" data-go="fatigue">
-          <span class="menu-icon">⏱</span>
-          <span class="menu-copy"><strong>Fatiga</strong><small>Rangos 8 y 15 días</small></span>
+        <button class="module-card-pro" data-go="fatigue">
+          <span class="module-icon-pro">◐</span>
+          <span><strong>Fatiga</strong><small>Control 8 y 15 días</small></span>
         </button>
-        <button class="menu-button" data-go="hoursReport">
-          <span class="menu-icon">📊</span>
-          <span class="menu-copy"><strong>Reporte de horas</strong><small>Horas acumuladas</small></span>
+        <button class="module-card-pro" data-go="hoursReport">
+          <span class="module-icon-pro">▥</span>
+          <span><strong>Reporte horas</strong><small>Histórico acumulado</small></span>
         </button>
-        <button class="menu-button secondary" data-go="settings">
-          <span class="menu-icon">⚙</span>
-          <span class="menu-copy"><strong>Configuración</strong><small>Perfil, Drive y licencia</small></span>
+        <button class="module-card-pro wide" data-go="settings">
+          <span class="module-icon-pro">⚙</span>
+          <span><strong>Configuración</strong><small>Perfil, aeronaves, respaldo y licencia</small></span>
         </button>
+      </div>
+
+      <div id="backupReminder" class="notice hidden compact-reminder"></div>
+
+      <div class="last-flight-card card">
+        <span class="strip-label">Último vuelo</span>
+        <div class="dashboard-mini" id="homeLastFlight">Sin registros aún</div>
       </div>
     </section>
 
@@ -336,7 +316,7 @@
     </section>
 
     <section id="settings" class="screen">
-      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Ajustes y respaldo</span><h2>Configuración</h2></div></div>
+      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Ajustes</span><h2>Configuración</h2></div></div>
       <div class="card">
         <h3>Mi perfil</h3>
         <div class="form-grid">
@@ -372,10 +352,10 @@
       </div>
       <div class="card">
         <h3>Google Drive</h3>
-        <p class="card-subtitle">El correo solo identifica al tripulante. Para respaldar datos debes tocar Conectar Google Drive y autorizar la cuenta.</p>
+        <p class="card-subtitle">El correo solo identifica al tripulante. Drive requiere autorización con Google.</p>
         <div id="driveStatus" class="notice soft">Google Drive sin conectar.</div>
         <div class="form-grid">
-          <label>Google OAuth Client ID<input id="googleClientId" placeholder="Se configura una vez antes de publicar" /></label>
+          <label>Google Client ID<input id="googleClientId" placeholder="Se configura una vez antes de publicar" /></label>
           <label>Recordatorio de respaldo<select id="backupReminderDays"><option value="1">Cada 24 horas</option><option value="3">Cada 3 días</option><option value="5">Cada 5 días</option></select></label>
           <label class="checkbox-line"><input id="driveAutoSync" type="checkbox" /> Sincronizar automáticamente cuando sea posible</label>
         </div>
@@ -401,6 +381,6 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>if(!window.PDFLib){document.write('<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"><\/script>')}</script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="app.js?v=44"></script>
+  <script src="app.js?v=45"></script>
 </body>
 </html>
