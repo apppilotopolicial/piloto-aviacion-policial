@@ -50,12 +50,16 @@ const AIRCRAFTS = [
 const STORAGE_KEY = 'cpc_flights_v1';
 const PROFILE_KEY = 'cpc_profile_v1';
 const HISTORICAL_HOURS_KEY = 'cpc_historical_hours_v1';
-const APP_VERSION = 'v4.0';
+const APP_VERSION = 'v4.3';
 const DRIVE_SETTINGS_KEY = 'pap_drive_settings_v1';
 const LOCAL_BACKUP_KEY = 'pap_local_backup_v1';
 const GOOGLE_DRIVE_CLIENT_ID = ''; // Configurar aquí antes de publicar en GitHub Pages. También se puede ingresar desde Configuración.
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email';
 const DRIVE_BACKUP_FILE_NAME = 'piloto_aviacion_policial_backup.json';
+const LICENSE_SETTINGS_KEY = 'pap_license_settings_v1';
+const LICENSE_CHECK_URL = ''; // Pegar aquí la URL del Web App de Google Apps Script para validar correos autorizados.
+const ONBOARDING_KEY = 'pap_onboarding_complete_v1';
+const AIRCRAFT_CONFIG_KEY = 'pap_aircraft_config_v1';
 const PDF_TEMPLATE_BASE64 = '';
 function base64ToArrayBuffer(base64) {
   const binaryString = atob(base64);
@@ -79,6 +83,46 @@ const getDriveSettings = () => {
   try { return {...defaults, ...JSON.parse(localStorage.getItem(DRIVE_SETTINGS_KEY) || '{}')}; } catch(e) { return defaults; }
 };
 const setDriveSettings = (settings) => localStorage.setItem(DRIVE_SETTINGS_KEY, JSON.stringify({...getDriveSettings(), ...settings}));
+const getLicenseSettings = () => {
+  const defaults = { enabled:false, checkUrl:'', status:'unknown', email:'', activeUntil:'', lastCheckedAt:'', message:'' };
+  try { return {...defaults, ...JSON.parse(localStorage.getItem(LICENSE_SETTINGS_KEY) || '{}')}; } catch(e) { return defaults; }
+};
+const setLicenseSettings = (settings) => localStorage.setItem(LICENSE_SETTINGS_KEY, JSON.stringify({...getLicenseSettings(), ...settings}));
+
+const getAircraftConfig = () => {
+  const defaults = { types:['CARAVAN'], mainRegistration:'PNC3018', weightBalanceTypes:['CARAVAN'], completedAt:'' };
+  try { return {...defaults, ...JSON.parse(localStorage.getItem(AIRCRAFT_CONFIG_KEY) || '{}')}; } catch(e) { return defaults; }
+};
+const setAircraftConfig = (cfg) => localStorage.setItem(AIRCRAFT_CONFIG_KEY, JSON.stringify({...getAircraftConfig(), ...cfg}));
+function hasOnboardingComplete(){ return localStorage.getItem(ONBOARDING_KEY) === 'yes'; }
+function clearPapLocalData(){
+  const prefixes = ['cpc_', 'pap_'];
+  Object.keys(localStorage).forEach(k => { if (prefixes.some(p => k.startsWith(p))) localStorage.removeItem(k); });
+}
+function handleResetQuery(){
+  try {
+    const params = new URLSearchParams(location.search);
+    if (params.get('reset') === '1') {
+      clearPapLocalData();
+      params.delete('reset');
+      const clean = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
+      history.replaceState({}, document.title, clean);
+    }
+  } catch(e) {}
+}
+function getConfiguredLicenseUrl(){ return (LICENSE_CHECK_URL || getLicenseSettings().checkUrl || '').trim(); }
+function getPublicLicenseSnapshot(){
+  const s = getLicenseSettings();
+  return { enabled:s.enabled, status:s.status, email:s.email, activeUntil:s.activeUntil, lastCheckedAt:s.lastCheckedAt };
+}
+function licenseIsActive(){
+  const s = getLicenseSettings();
+  if (s.status !== 'active') return false;
+  if (!s.activeUntil) return true;
+  const expires = new Date(s.activeUntil + 'T23:59:59').getTime();
+  return Number.isFinite(expires) ? expires >= Date.now() : true;
+}
+
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 function getConfiguredGoogleClientId(){
   return (GOOGLE_DRIVE_CLIENT_ID || getDriveSettings().clientId || '').trim();
@@ -90,9 +134,12 @@ function getBackupPayload(){
     appVersion:APP_VERSION,
     exportedAt:new Date().toISOString(),
     profile:JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}'),
+    aircraftConfig:getAircraftConfig(),
+    onboardingComplete:hasOnboardingComplete(),
     historicalHours:getHistoricalHours(),
     flights:getFlights(),
-    driveSettings:{ reminderDays:getDriveSettings().reminderDays, autoSync:getDriveSettings().autoSync }
+    driveSettings:{ reminderDays:getDriveSettings().reminderDays, autoSync:getDriveSettings().autoSync },
+    licenseSettings:getPublicLicenseSnapshot()
   };
 }
 function applyBackupPayload(data){
@@ -103,7 +150,12 @@ function applyBackupPayload(data){
   setFlights(flights);
   setHistoricalHours(historicalHours);
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  if (data.aircraftConfig && typeof data.aircraftConfig === 'object') setAircraftConfig(data.aircraftConfig);
+  if (data.onboardingComplete !== false) localStorage.setItem(ONBOARDING_KEY, 'yes');
   loadProfile();
+  fillSelects();
+  renderModuleAvailability();
+  renderOnboardingGate();
   renderInitialHoursList();
   renderHomeDashboard();
   renderReportResult(null);
@@ -299,6 +351,7 @@ function pdfProfileFor(reg) {
 }
 
 function init() {
+  handleResetQuery();
   document.querySelectorAll('[data-go]').forEach(btn => btn.addEventListener('click', () => show(btn.dataset.go)));
   ['flightDate','wbDate'].forEach(id => document.getElementById(id).value = todayISO());
   fillSelects();
@@ -309,23 +362,34 @@ function init() {
   loadProfile();
   updateAircraftType();
   initDriveControls();
+  initLicenseControls();
+  enforceAccessGate();
   renderHomeDashboard();
   renderBackupReminder();
+  initOnboardingControls();
+  renderModuleAvailability();
+  renderOnboardingGate();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
 }
 
 function show(id) {
+  if (id === 'weightBalance' && !weightBalanceAvailable()) {
+    alert('Peso y Balance no está habilitado para las aeronaves configuradas. Actualmente solo está disponible para Caravan.');
+    id = 'home';
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (id === 'home') { renderHomeDashboard(); renderBackupReminder(); }
   if (id === 'fatigue') renderFatigue();
   if (id === 'hoursReport') { renderInitialHoursList(); renderReportResult(null); }
-  if (id === 'settings') { loadDriveSettingsForm(); renderDriveStatus(); }
+  if (id === 'settings') { loadDriveSettingsForm(); renderDriveStatus(); loadLicenseSettingsForm(); renderLicenseStatus(); }
 }
 
 function fillSelects() {
-  const aircraftOptions = AIRCRAFTS.map(a => `<option value="${a.registration}">${a.registration} - ${a.model}</option>`).join('');
-  ['flightAircraft','wbAircraft'].forEach(id => document.getElementById(id).innerHTML = aircraftOptions);
+  const cfg = getAircraftConfig();
+  const allowedAircrafts = cfg.types && cfg.types.includes('CARAVAN') ? AIRCRAFTS : AIRCRAFTS;
+  const aircraftOptions = allowedAircrafts.map(a => `<option value="${a.registration}">${a.registration} - ${a.model}</option>`).join('');
+  ['flightAircraft','wbAircraft'].forEach(id => { const el=document.getElementById(id); if (el) { el.innerHTML = aircraftOptions; if (cfg.mainRegistration && [...el.options].some(o=>o.value===cfg.mainRegistration)) el.value = cfg.mainRegistration; } });
   document.getElementById('reportAircraft').innerHTML = `<option value="">Todas</option>` + aircraftOptions;
   const positionOptions = POSITIONS.map(p => `<option value="${p.code}">${p.code} - ${p.name}</option>`).join('');
   const allPositionOptions = ALL_POSITION_OPTIONS().map(p => `<option value="${p.code}">${p.code} - ${p.name}</option>`).join('');
@@ -350,12 +414,114 @@ function bindForms(){
   document.getElementById('exportData').addEventListener('click', exportBackup);
   if (document.getElementById('importDataFile')) document.getElementById('importDataFile').addEventListener('change', importBackupFile);
   document.getElementById('deleteAll').addEventListener('click', deleteAllFlights);
+  if (document.getElementById('resetAppSetup')) document.getElementById('resetAppSetup').addEventListener('click', resetAppFromZero);
   if (document.getElementById('saveDriveSettings')) document.getElementById('saveDriveSettings').addEventListener('click', saveDriveSettingsForm);
   if (document.getElementById('connectDrive')) document.getElementById('connectDrive').addEventListener('click', connectDrive);
   if (document.getElementById('driveBackupNow')) document.getElementById('driveBackupNow').addEventListener('click', () => backupToDrive({silent:false}));
   if (document.getElementById('driveRestoreNow')) document.getElementById('driveRestoreNow').addEventListener('click', restoreFromDrive);
+  if (document.getElementById('saveLicenseSettings')) document.getElementById('saveLicenseSettings').addEventListener('click', saveLicenseSettingsForm);
+  if (document.getElementById('checkLicenseNow')) document.getElementById('checkLicenseNow').addEventListener('click', () => checkLicenseAccess({interactive:true, silent:false}));
+  if (document.getElementById('accessCheckLicense')) document.getElementById('accessCheckLicense').addEventListener('click', () => checkLicenseAccess({interactive:true, silent:false}));
+  if (document.getElementById('accessConnectDrive')) document.getElementById('accessConnectDrive').addEventListener('click', async () => { await connectDrive(); await checkLicenseAccess({interactive:false, silent:false}); });
 }
 
+
+function weightBalanceAvailable(){
+  const cfg = getAircraftConfig();
+  return Array.isArray(cfg.types) ? cfg.types.includes('CARAVAN') : true;
+}
+function renderModuleAvailability(){
+  const wbBtn = document.querySelector('[data-go="weightBalance"]');
+  if (!wbBtn) return;
+  if (weightBalanceAvailable()) {
+    wbBtn.classList.remove('locked');
+    wbBtn.removeAttribute('aria-disabled');
+  } else {
+    wbBtn.classList.add('locked');
+    wbBtn.setAttribute('aria-disabled','true');
+  }
+}
+function selectedOnboardAircraft(){
+  return Array.from(document.querySelectorAll('.onboardAircraft:checked')).map(i => i.value);
+}
+function updateOnboardFunctionSummary(){
+  const el = document.getElementById('onboardFunctionSummary');
+  if (!el) return;
+  const types = selectedOnboardAircraft();
+  const wb = types.includes('CARAVAN');
+  el.innerHTML = `<b>Funciones que se habilitarán:</b><br>✓ Registro de vuelos<br>✓ Reporte de horas<br>✓ Fatiga${wb ? '<br>✓ Peso y Balance Caravan' : '<br>• Peso y Balance no se mostrará hasta que exista formato técnico para la aeronave seleccionada.'}`;
+}
+function showOnboardingStep(step){
+  document.querySelectorAll('.onboard-step').forEach(el => el.classList.toggle('active', el.dataset.step === step));
+  updateOnboardFunctionSummary();
+}
+function renderOnboardingGate(){
+  const gate = document.getElementById('onboardingGate');
+  if (!gate) return;
+  gate.classList.toggle('hidden', hasOnboardingComplete());
+}
+function initOnboardingControls(){
+  const bind = (id, fn) => { const el = document.getElementById(id); if (el && !el.dataset.bound) { el.dataset.bound='1'; el.addEventListener('click', fn); } };
+  bind('onboardCreateProfile', () => showOnboardingStep('profile'));
+  bind('onboardRestoreProfile', () => showOnboardingStep('restore'));
+  bind('onboardProfileNext', () => {
+    const rank = document.getElementById('onboardRank').value.trim().toUpperCase();
+    const name = document.getElementById('onboardName').value.trim().toUpperCase();
+    const email = document.getElementById('onboardEmail').value.trim().toLowerCase();
+    const unit = document.getElementById('onboardUnit').value.trim();
+    if (!rank || !name || !email) { alert('Debes ingresar grado, nombre y correo Google.'); return; }
+    localStorage.setItem(PROFILE_KEY, JSON.stringify({rank, name, email, unit, license:''}));
+    loadProfile();
+    showOnboardingStep('drive');
+  });
+  bind('onboardConnectDrive', async () => {
+    try { await connectDrive(); showOnboardingStep('aircraft'); }
+    catch(e) { alert('No fue posible conectar Google Drive: ' + (e && e.message ? e.message : e)); }
+  });
+  bind('onboardContinueLocal', () => {
+    if (confirm('Sin Google Drive, los datos quedan solo en este dispositivo y pueden perderse. ¿Deseas continuar bajo tu responsabilidad?')) showOnboardingStep('aircraft');
+  });
+  document.querySelectorAll('[data-onboard-back]').forEach(btn => { if (!btn.dataset.bound) { btn.dataset.bound='1'; btn.addEventListener('click', () => showOnboardingStep(btn.dataset.onboardBack)); } });
+  document.querySelectorAll('.onboardAircraft').forEach(chk => { if (!chk.dataset.bound) { chk.dataset.bound='1'; chk.addEventListener('change', updateOnboardFunctionSummary); } });
+  bind('onboardAircraftNext', () => {
+    const types = selectedOnboardAircraft();
+    if (!types.length) { alert('Selecciona al menos una aeronave.'); return; }
+    setAircraftConfig({types, weightBalanceTypes:types.includes('CARAVAN')?['CARAVAN']:[], completedAt:new Date().toISOString()});
+    if (types.includes('CARAVAN')) showOnboardingStep('mainAircraft');
+    else showOnboardingStep('initialHours');
+  });
+  bind('onboardMainAircraftNext', () => {
+    const mainRegistration = document.getElementById('onboardMainAircraft').value;
+    setAircraftConfig({mainRegistration});
+    fillSelects();
+    renderModuleAvailability();
+    showOnboardingStep('initialHours');
+  });
+  bind('onboardGoInitialHours', () => { localStorage.setItem(ONBOARDING_KEY, 'yes'); renderOnboardingGate(); show('hoursReport'); });
+  bind('onboardSkipInitialHours', () => showOnboardingStep('done'));
+  bind('onboardFinish', () => completeOnboarding());
+  bind('onboardRestoreDrive', async () => { await restoreFromDrive(); localStorage.setItem(ONBOARDING_KEY,'yes'); renderOnboardingGate(); show('home'); });
+  const imp = document.getElementById('onboardImportBackup');
+  if (imp && !imp.dataset.bound) { imp.dataset.bound='1'; imp.addEventListener('change', async (e) => { await importBackupFile(e); localStorage.setItem(ONBOARDING_KEY,'yes'); renderOnboardingGate(); show('home'); }); }
+  updateOnboardFunctionSummary();
+}
+function completeOnboarding(){
+  const p = JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
+  const cfg = getAircraftConfig();
+  const done = document.getElementById('onboardDoneSummary');
+  if (done) done.innerHTML = `<b>Piloto:</b> ${escapeHtml([p.rank,p.name].filter(Boolean).join(' '))}<br><b>Correo:</b> ${escapeHtml(p.email||'')}<br><b>Aeronaves:</b> ${escapeHtml((cfg.types||[]).join(', '))}<br><b>Aeronave principal:</b> ${escapeHtml(cfg.mainRegistration||'No aplica')}`;
+  localStorage.setItem(ONBOARDING_KEY, 'yes');
+  markDataChanged();
+  queueDriveAutoBackup('configuración inicial');
+  renderOnboardingGate();
+  show('home');
+}
+function resetAppFromZero(){
+  if (!confirm('Esto borrará perfil, configuración, horas iniciales, vuelos y ajustes locales de esta app. ¿Deseas iniciar desde cero?')) return;
+  clearPapLocalData();
+  if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(()=>{});
+  location.href = location.pathname + '?reset=1';
+}
 function updateAircraftType(){
   const a = aircraftByReg(document.getElementById('flightAircraft').value);
   document.getElementById('flightAircraftType').value = a.type;
@@ -409,6 +575,12 @@ function renderHomeDashboard(){
   if(mhEl) mhEl.textContent = `${fmt(machineHours)} h`;
   if(avEl){ avEl.textContent = `${fmt(available8)} h`; avEl.className = 'dashboard-number ' + (available8 < 0 ? 'bad' : available8 < 6 ? 'warn' : 'ok'); }
   if(lastEl) lastEl.textContent = lastFlightText;
+  const profile = JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
+  const cfg = getAircraftConfig();
+  const pilotEl = document.getElementById('homePilotIdentity');
+  const mainEl = document.getElementById('homeMainAircraftCard');
+  if(pilotEl) pilotEl.textContent = [profile.rank, profile.name].filter(Boolean).join(' ') || 'Piloto / Operador';
+  if(mainEl) mainEl.textContent = `Aeronave principal: ${cfg.mainRegistration || 'No configurada'}`;
 }
 
 function renderFatigue(){
@@ -1143,6 +1315,99 @@ function initDriveControls(){
   loadDriveSettingsForm();
   renderDriveStatus();
 }
+
+function initLicenseControls(){
+  const p = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+  if (document.getElementById('accessEmail')) document.getElementById('accessEmail').value = p.email || getLicenseSettings().email || '';
+  renderLicenseStatus();
+  renderAccessStatus();
+}
+function loadLicenseSettingsForm(){
+  const s = getLicenseSettings();
+  if (document.getElementById('licenseCheckUrl')) document.getElementById('licenseCheckUrl').value = LICENSE_CHECK_URL || s.checkUrl || '';
+  if (document.getElementById('licenseCheckEnabled')) document.getElementById('licenseCheckEnabled').checked = !!s.enabled;
+}
+function saveLicenseSettingsForm(){
+  const checkUrl = document.getElementById('licenseCheckUrl') ? document.getElementById('licenseCheckUrl').value.trim() : '';
+  const enabled = document.getElementById('licenseCheckEnabled') ? document.getElementById('licenseCheckEnabled').checked : false;
+  if (!LICENSE_CHECK_URL) setLicenseSettings({checkUrl, enabled});
+  else setLicenseSettings({enabled});
+  renderLicenseStatus('Configuración de licencia guardada.');
+  enforceAccessGate();
+}
+function renderLicenseStatus(message){
+  const el = document.getElementById('licenseStatus');
+  if (!el) return;
+  const s = getLicenseSettings();
+  const urlOk = !!getConfiguredLicenseUrl();
+  const active = licenseIsActive();
+  const checked = s.lastCheckedAt ? new Date(s.lastCheckedAt).toLocaleString() : 'sin verificación';
+  const state = !s.enabled ? 'Control de licencia desactivado.' : active ? 'Licencia activa.' : 'Licencia no activa o pendiente.';
+  el.classList.remove('hidden');
+  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}${state}<br>Correo: ${escapeHtml(s.email || 'sin correo verificado')}.<br>Última verificación: ${escapeHtml(checked)}.${urlOk ? '' : '<br><b>Falta URL de verificación.</b>'}`;
+}
+function renderAccessStatus(message){
+  const el = document.getElementById('accessStatus');
+  if (!el) return;
+  const s = getLicenseSettings();
+  const active = licenseIsActive();
+  el.innerHTML = message || (active ? `Acceso activo para ${escapeHtml(s.email)}.` : 'Pendiente de verificación de licencia.');
+}
+function enforceAccessGate(){
+  const gate = document.getElementById('accessGate');
+  if (!gate) return;
+  const s = getLicenseSettings();
+  const shouldBlock = !!s.enabled && !!getConfiguredLicenseUrl() && !licenseIsActive();
+  gate.classList.toggle('hidden', !shouldBlock);
+  document.body.classList.toggle('access-locked', shouldBlock);
+  renderAccessStatus();
+}
+async function getGoogleUserEmail(){
+  if (!driveAccessToken) await requestDriveToken(true);
+  const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {headers:{Authorization:'Bearer ' + driveAccessToken}});
+  if (!res.ok) throw new Error('No se pudo leer el correo de Google autorizado.');
+  const info = await res.json();
+  if (!info.email) throw new Error('Google no devolvió un correo válido.');
+  return String(info.email).trim().toLowerCase();
+}
+async function checkLicenseAccess({interactive=true, silent=false}={}){
+  try {
+    const manualEmail = document.getElementById('accessEmail') ? document.getElementById('accessEmail').value.trim().toLowerCase() : '';
+    const googleEmail = driveAccessToken ? await getGoogleUserEmail() : (interactive ? await getGoogleUserEmail() : manualEmail);
+    const email = googleEmail || manualEmail;
+    if (!email) throw new Error('Ingresa o autoriza el correo Google del piloto.');
+    const url = getConfiguredLicenseUrl();
+    if (!url) throw new Error('Falta configurar la URL de verificación de licencias.');
+    const sep = url.includes('?') ? '&' : '?';
+    const res = await fetch(url + sep + 'email=' + encodeURIComponent(email) + '&appVersion=' + encodeURIComponent(APP_VERSION), {cache:'no-store'});
+    if (!res.ok) throw new Error('No se pudo consultar la lista de licencias.');
+    const data = await res.json();
+    const active = !!(data.active || String(data.status || '').toUpperCase() === 'ACTIVO');
+    setLicenseSettings({
+      email,
+      status: active ? 'active' : 'inactive',
+      activeUntil: data.activeUntil || data.fechaVencimiento || '',
+      lastCheckedAt:new Date().toISOString(),
+      message:data.message || data.mensaje || ''
+    });
+    const profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+    if (!profile.email) localStorage.setItem(PROFILE_KEY, JSON.stringify({...profile, email}));
+    if (document.getElementById('profileEmail')) document.getElementById('profileEmail').value = email;
+    renderLicenseStatus(active ? 'Licencia verificada correctamente.' : 'El correo no tiene licencia activa.');
+    renderAccessStatus(active ? `Acceso autorizado para ${escapeHtml(email)}.` : `El correo ${escapeHtml(email)} no tiene licencia activa.`);
+    enforceAccessGate();
+    if (!silent) alert(active ? 'Licencia activa. Acceso autorizado.' : 'Este correo no tiene licencia activa.');
+    return active;
+  } catch(e) {
+    const msg = e && e.message ? e.message : String(e);
+    renderLicenseStatus('Error de verificación: ' + msg);
+    renderAccessStatus('Error de verificación: ' + escapeHtml(msg));
+    if (!silent) alert('No se pudo verificar la licencia: ' + msg);
+    enforceAccessGate();
+    return false;
+  }
+}
+
 function loadDriveSettingsForm(){
   const s = getDriveSettings();
   if (document.getElementById('googleClientId')) document.getElementById('googleClientId').value = GOOGLE_DRIVE_CLIENT_ID || s.clientId || '';
@@ -1221,6 +1486,7 @@ async function connectDrive(){
     await requestDriveToken(true);
     const file = await findDriveBackupFile();
     renderDriveStatus(file ? `Google Drive conectado. Se encontró respaldo: ${file.modifiedTime || file.name}.` : 'Google Drive conectado. Aún no hay respaldo creado.');
+    if (getConfiguredLicenseUrl()) await checkLicenseAccess({interactive:false, silent:true});
   } catch(e) {
     renderDriveStatus('Error al conectar: ' + (e && e.message ? e.message : e));
   }

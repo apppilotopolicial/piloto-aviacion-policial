@@ -1,5 +1,5 @@
-const CACHE = 'piloto-aviacion-policial-v40';
-const ASSETS = ['./','./index.html','./styles.css?v=40','./app.js?v=40','./manifest.json','./icon.svg','./peso-balance-template.pdf','./left_base_top.png','./left_base_bottom.png','./left_0254_top.png','./left_0254_bottom.png','./left_3018_top.png','./left_3018_bottom.png'];
+const CACHE = 'piloto-aviacion-policial-v43';
+const ASSETS = ['./','./index.html','./styles.css?v=43','./app.js?v=43','./manifest.json','./icon.svg','./brand-wings.svg','./hero-aviation.svg','./peso-balance-template.pdf','./left_base_top.png','./left_base_bottom.png','./left_0254_top.png','./left_0254_bottom.png','./left_3018_top.png','./left_3018_bottom.png'];
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));

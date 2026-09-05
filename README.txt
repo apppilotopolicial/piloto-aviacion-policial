@@ -1,2 +1,2 @@
-Version v2.4
-Correccion: PNC3018 usa la misma familia de graficas izquierdas que PNC0216, PNC3019 y PNC0253. PNC0254 mantiene STC.
+Piloto Aviación Policial v4.3
+Rediseño visual inspirado en la muestra 1: azul institucional, blanco, dorado, tarjetas modernas e inicio premium desde cero.

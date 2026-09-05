@@ -3,8 +3,8 @@
   "short_name": "Piloto AP",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#dfeefa",
-  "theme_color": "#2f6c9e",
+  "background_color": "#f4f8fc",
+  "theme_color": "#0b3158",
   "description": "Control personal de peso y balance, vuelos, fatiga y reporte de horas.",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }

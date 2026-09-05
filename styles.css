@@ -327,3 +327,217 @@ main{padding-bottom:86px}
 .notice.soft{background:#eef5fb;border-color:rgba(47,108,158,.25);color:#255a82}
 .checkbox-line{display:flex!important;align-items:center;gap:10px;min-height:48px}
 .checkbox-line input{width:auto!important;min-width:18px}
+
+
+/* v4.1 control de acceso */
+.access-gate { position: fixed; inset: 0; z-index: 9999; min-height: 100vh; padding: 22px; display: flex; align-items: center; justify-content: center; background: rgba(11, 34, 54, .72); backdrop-filter: blur(10px); }
+.access-gate.hidden { display: none; }
+.access-card { width: min(560px, 100%); background: #fff; border-radius: 28px; padding: 24px; box-shadow: 0 24px 80px rgba(0,0,0,.25); border: 1px solid rgba(47,108,158,.18); }
+.access-card h2 { margin: 10px 0 8px; }
+.access-card label { display:block; margin-top:14px; font-weight:700; }
+.access-card input { width:100%; margin-top:7px; }
+body.access-locked main, body.access-locked header { filter: blur(2px); pointer-events: none; user-select: none; }
+
+
+/* Onboarding inicial */
+.onboarding-gate{
+  position:fixed; inset:0; z-index:80; padding:18px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(180deg, rgba(13,43,70,.72), rgba(13,43,70,.88));
+  backdrop-filter:blur(12px);
+}
+.onboarding-gate.hidden{display:none}
+.onboarding-card{
+  width:min(760px,100%); max-height:92vh; overflow:auto;
+  background:rgba(255,255,255,.96); color:var(--text); border-radius:30px; padding:22px;
+  border:1px solid rgba(255,255,255,.45); box-shadow:0 24px 60px rgba(0,0,0,.25);
+}
+.onboarding-top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px}
+.onboarding-top .hero-badge{background:linear-gradient(135deg,var(--primary),var(--primary-2)); border:0}
+.onboard-step{display:none}
+.onboard-step.active{display:block}
+.onboard-step h2{margin:8px 0 8px; font-size:30px}
+.onboard-step .lead{font-size:18px; color:var(--primary); font-weight:800}
+.stacked-actions{display:flex; flex-wrap:wrap; gap:10px}
+.check-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0}
+.checkbox-line{display:flex; align-items:center; gap:8px; padding:12px; border:1px solid var(--line); border-radius:16px; background:#fff}
+.checkbox-line small{margin-left:auto; color:var(--muted); font-size:11px}
+.button-like{display:inline-flex; align-items:center; justify-content:center; padding:12px 16px; border-radius:16px; cursor:pointer; border:1px solid var(--line-strong)}
+.button-like input{display:none}
+.menu-button.locked{opacity:.48; filter:grayscale(.4); cursor:not-allowed}
+@media (max-width:700px){.check-grid{grid-template-columns:1fr}.onboard-step h2{font-size:25px}}
+
+/* v4.3 - Rediseño visual muestra 1: institucional premium */
+:root{
+  --bg:#edf4fa;
+  --bg2:#f8fbff;
+  --surface:#ffffff;
+  --surface-glass:rgba(255,255,255,.82);
+  --primary:#0b3158;
+  --primary-2:#0f5f9f;
+  --primary-3:#1797e8;
+  --text:#0d2948;
+  --muted:#607a95;
+  --line:#d7e5f0;
+  --line-strong:#aac3d7;
+  --gold:#c69535;
+  --gold-soft:#f4dfa9;
+  --ok:#15955d;
+  --warn:#d39a1e;
+  --bad:#be3e3e;
+  --shadow:0 22px 48px rgba(8,42,73,.13);
+  --shadow-soft:0 12px 28px rgba(8,42,73,.08);
+}
+body{
+  background:
+    radial-gradient(circle at 12% 4%, rgba(255,255,255,.95), transparent 24%),
+    radial-gradient(circle at 88% 6%, rgba(199,149,53,.20), transparent 18%),
+    linear-gradient(180deg,#e7f5ff 0%,#f8fbff 42%,#eef5fb 100%);
+}
+body::before{
+  background:
+    linear-gradient(160deg, transparent 0 58%, rgba(15,95,159,.06) 58% 59%, transparent 59%),
+    linear-gradient(rgba(11,49,88,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11,49,88,.045) 1px, transparent 1px);
+  background-size:260px 260px,34px 34px,34px 34px;
+  opacity:.85;
+}
+.app-header{
+  background:rgba(248,251,255,.84);
+  border-bottom:1px solid rgba(11,49,88,.08);
+  box-shadow:0 8px 30px rgba(8,42,73,.05);
+}
+.brand{gap:12px;align-items:flex-start}
+.logo{
+  width:54px;height:54px;border-radius:18px;
+  background:linear-gradient(145deg,#f1d28a,#0f5f9f 58%,#0b3158);
+  box-shadow:0 14px 28px rgba(8,42,73,.18);
+}
+.logo-mark{background:linear-gradient(180deg,#123e67,#061d34);font-size:22px;color:#f4dfa9}
+.logo-mark::before,.logo-mark::after{width:21px;background:#fff;opacity:.95}
+.logo-mark span{position:relative;z-index:2}
+h1{font-size:22px;letter-spacing:-.02em}.brand p{font-size:12px;color:#6b8399}
+.eyebrow,.screen-kicker,.strip-label{color:var(--gold);letter-spacing:.18em}
+main,.brand{max-width:480px}
+main{padding:16px 14px 92px}
+.card,.strip-card,.dashboard-card,.menu-button{
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,252,255,.92));
+  border:1px solid rgba(136,171,198,.28);
+  box-shadow:0 10px 28px rgba(8,42,73,.08);
+  backdrop-filter:blur(10px);
+}
+.premium-home{
+  min-height:390px;
+  padding:20px;
+  display:flex;
+  align-items:flex-end;
+  background:
+    linear-gradient(180deg,rgba(8,32,54,.02) 0%,rgba(8,32,54,.15) 35%,rgba(5,22,38,.82) 100%),
+    url('hero-aviation.svg') center/cover no-repeat;
+  color:#fff;
+  border-radius:34px;
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:0 24px 54px rgba(8,42,73,.22);
+  position:relative;
+}
+.premium-home::before{
+  content:"PLANIFICAR\A REGISTRAR\A CONTROLAR\A SERVIR";
+  white-space:pre;
+  position:absolute;left:22px;top:86px;
+  font-size:10px;font-weight:800;letter-spacing:.22em;line-height:1.65;
+  color:rgba(255,255,255,.68);
+}
+.premium-home::after{
+  content:"CIELOS MÁS SEGUROS\A COMUNIDADES MÁS FUERTES";
+  white-space:pre;
+  position:absolute;left:0;right:0;bottom:18px;text-align:center;
+  font-size:9px;font-weight:800;letter-spacing:.28em;line-height:1.6;
+  color:rgba(255,255,255,.72);
+}
+.premium-home .hero-copy{position:relative;z-index:2;padding-bottom:70px;width:100%}
+.premium-home .hero-badge{
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);color:#fff;
+  backdrop-filter:blur(8px);
+}
+.premium-home h2{font-size:31px;line-height:1.03;margin:14px 0 8px;color:#fff;letter-spacing:-.03em}
+.premium-home p{font-size:14px;color:rgba(255,255,255,.9);max-width:34ch}
+.profile-flight-card{
+  margin:16px 0 12px;
+  border-radius:22px;
+  padding:12px;
+  background:rgba(255,255,255,.93);
+  color:var(--text);
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:12px;
+  align-items:center;
+  box-shadow:0 16px 32px rgba(0,0,0,.16);
+}
+.profile-flight-card strong{display:block;font-size:14px;color:var(--text)}
+.profile-flight-card small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.pilot-avatar{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#0f5f9f,#0b3158);color:#fff;font-size:21px}
+.sync-chip{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:900;color:#15955d;text-transform:uppercase;letter-spacing:.05em}
+.sync-chip span{width:28px;height:28px;border-radius:999px;background:#e7f8ee;display:block;position:relative;border:1px solid rgba(21,149,93,.18)}
+.sync-chip span::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#15955d;font-weight:900}
+.hero-tags .pill{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.18);font-size:11px;color:#fff}
+.hero-tags .pill.gold{background:rgba(199,149,53,.28);color:#ffe8b0}
+.status-strip{grid-template-columns:repeat(3,1fr);gap:8px;margin-top:-2px}
+.strip-card{border-radius:20px;padding:13px 12px}.strip-card strong{font-size:12px}
+.dashboard-grid{grid-template-columns:1fr 1fr;gap:11px}.dashboard-card{border-radius:24px;min-height:124px;padding:16px}
+.dashboard-card.accent{background:linear-gradient(135deg,#0b3158 0%,#0f5f9f 72%,#1797e8 100%)}
+.dashboard-number{font-size:29px;color:var(--primary);letter-spacing:-.04em}.dashboard-card p{font-size:12px;line-height:1.25}
+.menu-grid{gap:12px}
+.menu-button{border-radius:24px;min-height:82px;background:rgba(255,255,255,.92)}
+.menu-icon{border-radius:18px;background:linear-gradient(145deg,#e8f3fb,#ffffff);color:#0b3158;border:1px solid rgba(15,95,159,.13);box-shadow:inset 0 1px 0 #fff,0 8px 18px rgba(8,42,73,.07)}
+.menu-copy strong{font-size:16px;color:#0b3158}.menu-copy small{font-size:12px;color:#668096}
+button{background:linear-gradient(135deg,#0b67b0,#04a2ff);box-shadow:0 16px 28px rgba(4,134,218,.25)}
+.ghost{background:rgba(255,255,255,.82);color:#0b3158;border:1px solid rgba(11,49,88,.18)}
+input,select{border-radius:17px;border-color:rgba(136,171,198,.38);background:#fbfdff}
+.card{border-radius:26px}.screen-title h2{letter-spacing:-.02em}
+/* Onboarding premium */
+.onboarding-gate{
+  background:
+    linear-gradient(180deg,rgba(232,246,255,.90),rgba(6,29,52,.80)),
+    url('hero-aviation.svg') center/cover no-repeat;
+  backdrop-filter:blur(0);
+  padding:14px;
+}
+.onboarding-card{
+  width:min(460px,100%);
+  min-height:min(820px,94vh);
+  border-radius:36px;
+  padding:22px;
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(255,255,255,.65);
+  box-shadow:0 28px 70px rgba(7,29,50,.32);
+}
+.onboarding-top{margin-bottom:16px}.onboarding-top strong{color:#0b3158}.onboarding-top .hero-badge{background:#0b3158;color:#fff}
+.onboard-step[data-step="welcome"].active{
+  min-height:690px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:14px 4px 0;
+  position:relative;
+}
+.onboard-step[data-step="welcome"].active::before{
+  content:"";
+  position:absolute;inset:-22px -22px auto -22px;height:390px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.68) 78%,rgba(255,255,255,.96)),
+    url('hero-aviation.svg') center 52%/cover no-repeat;
+  border-radius:36px 36px 30px 30px;
+  z-index:0;
+}
+.onboard-step[data-step="welcome"]>*{position:relative;z-index:1}
+.welcome-emblem{text-align:center;margin:0 auto 220px}.welcome-emblem img{width:128px;filter:drop-shadow(0 10px 18px rgba(8,42,73,.18))}
+.onboard-step h2{font-size:42px;line-height:.98;margin:8px 0;color:#0b3158;letter-spacing:-.05em}
+.welcome-subtitle{font-size:12px!important;text-transform:uppercase;letter-spacing:.26em;font-weight:900;color:#6d89a0!important;margin:0 0 20px!important}
+.onboard-step .lead{font-size:17px;color:#0b3158;font-weight:850;line-height:1.32}
+.onboard-step p{font-size:14px;line-height:1.42;color:#5a7288}
+.stacked-actions{display:grid;grid-template-columns:1fr;gap:11px;margin-top:20px}
+.stacked-actions button,.button-like{width:100%;min-height:56px;border-radius:20px}
+.check-grid{grid-template-columns:1fr}.checkbox-line{border-radius:18px;background:rgba(255,255,255,.88)}
+.notice.soft{background:#eef6fb;border-color:rgba(15,95,159,.18);color:#315b7a;border-radius:19px}
+.access-gate{background:linear-gradient(180deg,rgba(232,246,255,.82),rgba(6,29,52,.82)),url('hero-aviation.svg') center/cover no-repeat}.access-card{border-radius:32px}
+@media(max-width:390px){.premium-home{min-height:370px}.premium-home .hero-copy{padding-bottom:62px}.profile-flight-card{grid-template-columns:auto 1fr}.sync-chip{display:none}.onboard-step h2{font-size:36px}}

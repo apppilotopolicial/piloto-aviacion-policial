@@ -1,0 +1,79 @@
+CONTROL MANUAL DE LICENCIAS - GOOGLE SHEETS + APPS SCRIPT
+
+1. Crear una hoja de Google Sheets llamada: licencias_pilotos_app
+2. La primera pestaña debe llamarse: licencias
+3. Crear estas columnas en la fila 1:
+   email | nombre | estado | fecha_activacion | fecha_vencimiento | observacion
+
+Ejemplo:
+piloto@gmail.com | MY HUMBERTO PLATA | ACTIVO | 2026-09-05 | 2027-09-05 | Pago anual
+
+4. En Google Sheets ir a Extensiones > Apps Script.
+5. Pegar este código y reemplazar SPREADSHEET_ID por el ID de la hoja.
+6. Implementar como Web App:
+   - Ejecutar como: Yo
+   - Quién tiene acceso: Cualquier usuario
+7. Copiar la URL del Web App.
+8. Pegar esa URL en la app, en Configuración > Control de acceso por licencia.
+9. Activar: Bloquear app si el correo no tiene licencia activa.
+
+CODIGO APPS SCRIPT:
+
+const SPREADSHEET_ID = 'PEGAR_AQUI_ID_DE_LA_HOJA';
+const SHEET_NAME = 'licencias';
+
+function doGet(e) {
+  const email = String((e.parameter.email || '')).trim().toLowerCase();
+  const result = { active:false, status:'INACTIVO', message:'Correo no autorizado' };
+
+  if (!email) {
+    return jsonOutput({ ...result, message:'No se recibió correo' });
+  }
+
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
+  const values = sheet.getDataRange().getValues();
+  const headers = values.shift().map(h => String(h).trim().toLowerCase());
+  const idxEmail = headers.indexOf('email');
+  const idxNombre = headers.indexOf('nombre');
+  const idxEstado = headers.indexOf('estado');
+  const idxVence = headers.indexOf('fecha_vencimiento');
+
+  for (const row of values) {
+    const rowEmail = String(row[idxEmail] || '').trim().toLowerCase();
+    if (rowEmail !== email) continue;
+
+    const estado = String(row[idxEstado] || '').trim().toUpperCase();
+    const vencimientoRaw = row[idxVence];
+    let activeUntil = '';
+    let vencida = false;
+
+    if (vencimientoRaw instanceof Date) {
+      activeUntil = Utilities.formatDate(vencimientoRaw, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+      const today = new Date(); today.setHours(0,0,0,0);
+      const venc = new Date(vencimientoRaw); venc.setHours(23,59,59,999);
+      vencida = venc < today;
+    } else if (vencimientoRaw) {
+      activeUntil = String(vencimientoRaw).trim();
+      const venc = new Date(activeUntil + 'T23:59:59');
+      vencida = !isNaN(venc.getTime()) && venc < new Date();
+    }
+
+    const activo = estado === 'ACTIVO' && !vencida;
+    return jsonOutput({
+      active: activo,
+      status: activo ? 'ACTIVO' : 'INACTIVO',
+      email: rowEmail,
+      nombre: idxNombre >= 0 ? row[idxNombre] : '',
+      activeUntil,
+      message: activo ? 'Licencia activa' : 'Licencia inactiva o vencida'
+    });
+  }
+
+  return jsonOutput(result);
+}
+
+function jsonOutput(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}

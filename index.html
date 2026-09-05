@@ -3,43 +3,175 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#2f6c9e" />
+  <meta name="theme-color" content="#0b3158" />
   <title>Piloto Aviación Policial</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css?v=40" />
+  <link rel="stylesheet" href="styles.css?v=43" />
 </head>
 <body>
   <div class="sky-layer"></div>
   <header class="app-header">
     <div class="brand">
       <div class="logo">
-        <div class="logo-mark">PAP</div>
+        <div class="logo-mark"><span>✦</span></div>
       </div>
       <div>
-        <div class="eyebrow">AVIACIÓN POLICIAL · CONTROL OPERACIONAL</div>
+        <div class="eyebrow">DISCIPLINA · SERVICIO · SEGURIDAD</div>
         <h1>Piloto Aviación Policial</h1>
-        <p>App personal para piloto · control operacional · horas, fatiga y peso y balance</p>
+        <p>Volar es más que operar una aeronave: es servir con disciplina, criterio y responsabilidad.</p>
       </div>
     </div>
   </header>
 
+
+  <div id="onboardingGate" class="onboarding-gate hidden">
+    <div class="onboarding-card">
+      <div class="onboarding-top">
+        <span class="hero-badge">Configuración inicial</span>
+        <strong>Piloto Aviación Policial</strong>
+      </div>
+
+      <div class="onboard-step active" data-step="welcome">
+        <div class="welcome-emblem"><img src="brand-wings.svg" alt="" /></div>
+        <h2>Bienvenido</h2>
+        <p class="welcome-subtitle">A un vuelo con propósito</p>
+        <p class="lead">Volar es más que operar una aeronave: es servir con disciplina, criterio y responsabilidad.</p>
+        <p>Configura tu perfil para adaptar la app a tus aeronaves, horas acumuladas, respaldo de información y control operacional.</p>
+        <div class="form-actions stacked-actions">
+          <button type="button" id="onboardCreateProfile">Crear perfil nuevo</button>
+          <button type="button" id="onboardRestoreProfile" class="ghost">Restaurar perfil existente</button>
+        </div>
+      </div>
+
+      <div class="onboard-step" data-step="profile">
+        <h2>Datos del piloto</h2>
+        <p>Estos datos se usarán para tu perfil, reportes, firmas y respaldo.</p>
+        <div class="form-grid">
+          <label>Grado<input id="onboardRank" placeholder="Ej: MY" /></label>
+          <label>Nombres y apellidos<input id="onboardName" placeholder="Nombre completo" /></label>
+          <label>Correo Google / Gmail<input id="onboardEmail" type="email" placeholder="correo@gmail.com" /></label>
+          <label>Unidad / base<input id="onboardUnit" placeholder="Opcional" /></label>
+        </div>
+        <div class="form-actions">
+          <button type="button" id="onboardProfileNext">Continuar</button>
+          <button type="button" class="ghost" data-onboard-back="welcome">Atrás</button>
+        </div>
+      </div>
+
+      <div class="onboard-step" data-step="drive">
+        <h2>Respaldo y conservación</h2>
+        <p>Para conservar tu información y recuperarla en otro teléfono, la app usará tu cuenta Google Drive.</p>
+        <div class="notice soft">Si continúas sin conectar Drive, los datos quedan únicamente en este dispositivo y podrían perderse si se borra caché, se eliminan datos del sitio, se desinstala la app o cambias de teléfono.</div>
+        <div class="form-actions stacked-actions">
+          <button type="button" id="onboardConnectDrive">Conectar Google Drive</button>
+          <button type="button" id="onboardContinueLocal" class="ghost">Continuar bajo mi responsabilidad</button>
+        </div>
+      </div>
+
+      <div class="onboard-step" data-step="aircraft">
+        <h2>Aeronaves que vuelas</h2>
+        <p>Selecciona tus aeronaves. La app habilitará automáticamente las funciones disponibles para ellas.</p>
+        <div class="check-grid">
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="CARAVAN" checked /> Caravan <small>Peso y Balance disponible</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="B200" /> B200 <small>Horas y fatiga</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="B300" /> B300 <small>Horas y fatiga</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="B350" /> B350 <small>Horas y fatiga</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="B-1900" /> B-1900 <small>Horas y fatiga</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="C-172" /> C-172 <small>Horas y fatiga</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="C-206G" /> C-206G <small>Horas y fatiga</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="C-152" /> C-152 <small>Horas y fatiga</small></label>
+        </div>
+        <div id="onboardFunctionSummary" class="notice soft"></div>
+        <div class="form-actions">
+          <button type="button" id="onboardAircraftNext">Continuar</button>
+          <button type="button" class="ghost" data-onboard-back="drive">Atrás</button>
+        </div>
+      </div>
+
+      <div class="onboard-step" data-step="mainAircraft">
+        <h2>Caravan principal</h2>
+        <p>Selecciona la matrícula que aparecerá por defecto en Peso y Balance y Registro de Vuelo.</p>
+        <div class="form-grid">
+          <label>Matrícula principal<select id="onboardMainAircraft">
+            <option value="PNC3018">PNC3018 — C-208 / Formato 3018</option>
+            <option value="PNC0254">PNC0254 — C-208B STC</option>
+            <option value="PNC3019">PNC3019 — Formato base Caravan</option>
+            <option value="PNC0216">PNC0216 — Formato base Caravan</option>
+            <option value="PNC0253">PNC0253 — Formato base Caravan</option>
+          </select></label>
+        </div>
+        <div class="notice soft">Peso y Balance solo se habilita para aeronaves con formato técnico disponible. Por ahora, la aeronave habilitada es Caravan.</div>
+        <div class="form-actions">
+          <button type="button" id="onboardMainAircraftNext">Continuar</button>
+          <button type="button" class="ghost" data-onboard-back="aircraft">Atrás</button>
+        </div>
+      </div>
+
+      <div class="onboard-step" data-step="initialHours">
+        <h2>Horas iniciales</h2>
+        <p>Puedes cargarlas ahora o hacerlo después desde Reporte Horas. Estas horas se incorporan al total general, no aparecen como reporte aparte.</p>
+        <div class="notice soft">PA y AL corresponden a entrenamiento inicial y también suman al total general.</div>
+        <div class="form-actions stacked-actions">
+          <button type="button" id="onboardGoInitialHours">Cargar horas iniciales ahora</button>
+          <button type="button" id="onboardSkipInitialHours" class="ghost">Omitir por ahora</button>
+        </div>
+      </div>
+
+      <div class="onboard-step" data-step="restore">
+        <h2>Restaurar perfil existente</h2>
+        <p>Usa esta opción en un teléfono nuevo. Conecta el mismo Google Drive y restaura tu respaldo.</p>
+        <div class="form-actions stacked-actions">
+          <button type="button" id="onboardRestoreDrive">Restaurar desde Google Drive</button>
+          <label class="button-like ghost">Importar respaldo local<input id="onboardImportBackup" type="file" accept="application/json,.json" /></label>
+          <button type="button" class="ghost" data-onboard-back="welcome">Atrás</button>
+        </div>
+      </div>
+
+      <div class="onboard-step" data-step="done">
+        <h2>Configuración inicial completada</h2>
+        <div id="onboardDoneSummary" class="notice soft"></div>
+        <div class="form-actions">
+          <button type="button" id="onboardFinish">Entrar a la app</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="accessGate" class="access-gate hidden">
+    <div class="access-card">
+      <span class="hero-badge">Acceso protegido</span>
+      <h2>Piloto Aviación Policial</h2>
+      <p>Para usar la app de manera operativa, debes validar tu acceso con la cuenta Google autorizada. El enlace puede abrirse, pero las funciones quedan protegidas por licencia activa.</p>
+      <label>Correo Google autorizado<input id="accessEmail" type="email" placeholder="correo@gmail.com" /></label>
+      <div id="accessStatus" class="notice soft">Pendiente de verificación.</div>
+      <div class="form-actions">
+        <button id="accessConnectDrive" type="button">Conectar Google Drive</button>
+        <button id="accessCheckLicense" type="button" class="ghost">Verificar acceso</button>
+      </div>
+      <p class="muted">Si no tienes licencia activa, solicita la activación al administrador de la app con el mismo correo Gmail que usarás para tus respaldos.</p>
+    </div>
+  </div>
+
   <main id="app">
     <section id="home" class="screen active">
-      <div class="hero-card">
+      <div class="hero-card premium-home">
         <div class="hero-copy">
-          <span class="hero-badge">Aviación policial · control personal · v2.3</span>
-          <h2>Centro de control del vuelo</h2>
-          <p>Diseño inspirado en la aviación policial: una interfaz más clara, luminosa y profesional, con identidad aeronáutica y enfoque en operación, disciplina y consulta rápida.</p>
-          <div class="hero-tags">
-            <span class="pill gold">C-208 Series</span>
-            <span class="pill">Fatiga 8 / 15 días</span>
-            <span class="pill">PDF digital alineado</span>
+          <span class="hero-badge">Piloto Aviación Policial · v4.3</span>
+          <h2>Buen vuelo, Capitán</h2>
+          <p>Planifica, registra y protege tu información de vuelo con una herramienta diseñada para servir con disciplina, criterio y responsabilidad.</p>
+          <div class="profile-flight-card">
+            <div class="pilot-avatar">✈</div>
+            <div>
+              <strong id="homePilotIdentity">Piloto / Operador</strong>
+              <small id="homeMainAircraftCard">Aeronave principal: PNC3018</small>
+            </div>
+            <div class="sync-chip"><span></span>Respaldo</div>
           </div>
-        </div>
-        <div class="hero-art" aria-hidden="true">
-          <div class="art-radar"></div>
-          <div class="art-plane">✈</div>
-          <div class="art-wings"></div>
+          <div class="hero-tags">
+            <span class="pill gold">Cielos más seguros</span>
+            <span class="pill">Control operacional</span>
+            <span class="pill">Más que una app</span>
+          </div>
         </div>
       </div>
 
@@ -229,6 +361,21 @@
         <button id="exportData" class="ghost">Exportar respaldo JSON</button>
         <label>Importar respaldo JSON<input id="importDataFile" type="file" accept="application/json,.json" /></label>
         <button id="deleteAll" class="danger">Borrar todos los vuelos guardados</button>
+        <button id="resetAppSetup" class="danger">Reiniciar app desde cero</button>
+      </div>
+      <div class="card">
+        <h3>Control de acceso por licencia</h3>
+        <p class="card-subtitle">El enlace de la app puede circular, pero el uso operativo se valida con el correo Google autorizado en la lista privada de licencias.</p>
+        <div id="licenseStatus" class="notice soft">Control de licencias pendiente de configurar.</div>
+        <div class="form-grid">
+          <label>URL de verificación de licencias<input id="licenseCheckUrl" placeholder="URL del Web App de Google Apps Script" /></label>
+          <label class="checkbox-line"><input id="licenseCheckEnabled" type="checkbox" /> Bloquear app si el correo no tiene licencia activa</label>
+        </div>
+        <div class="form-actions">
+          <button id="saveLicenseSettings" class="ghost">Guardar configuración de licencia</button>
+          <button id="checkLicenseNow" type="button">Verificar licencia actual</button>
+        </div>
+        <p class="muted">Para no pagar pasarela, el administrador activa manualmente el Gmail del piloto en una hoja privada de Google Sheets. La app consulta esa lista al iniciar.</p>
       </div>
       <div class="card">
         <h3>Respaldo en Google Drive</h3>
@@ -261,6 +408,6 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>if(!window.PDFLib){document.write('<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"><\/script>')}</script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="app.js?v=40"></script>
+  <script src="app.js?v=43"></script>
 </body>
 </html>
