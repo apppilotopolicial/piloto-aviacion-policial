@@ -1,26 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3d7cb0"/>
-      <stop offset="60%" stop-color="#1f4f79"/>
-      <stop offset="100%" stop-color="#14314d"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#d9b15f"/>
-      <stop offset="100%" stop-color="#f2d18b"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <circle cx="256" cy="220" r="116" fill="none" stroke="#73c2de" stroke-opacity="0.22" stroke-width="3"/>
-  <circle cx="256" cy="220" r="84" fill="none" stroke="#73c2de" stroke-opacity="0.18" stroke-width="2"/>
-  <path d="M62 219h120" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
-  <path d="M330 219h120" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
-  <path d="M112 197l86 22-86 22" fill="none" stroke="url(#gold)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M400 197l-86 22 86 22" fill="none" stroke="url(#gold)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M124 274l116-28 148 10v28l-148-4-116 31z" fill="#ffffff" fill-opacity="0.97"/>
-  <path d="M248 184l50 54-41 6-53-46z" fill="#ffffff" fill-opacity="0.9"/>
-  <path d="M244 286l57 60-37 3-55-55z" fill="#ffffff" fill-opacity="0.88"/>
-  <circle cx="389" cy="257" r="11" fill="#73c2de"/>
-  <text x="256" y="432" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="800" fill="#ffffff">PAP</text>
-  <text x="256" y="468" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#f2d18b" letter-spacing="3">POLICIAL</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Tripulante Aviación Policial">
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0d5f9a"/><stop offset="1" stop-color="#092d4d"/></linearGradient></defs>
+  <rect width="256" height="256" rx="58" fill="url(#g)"/>
+  <circle cx="128" cy="128" r="58" fill="none" stroke="#e6c67b" stroke-width="8" opacity=".95"/>
+  <path d="M34 132c34-18 63-27 94-27s60 9 94 27c-37-4-64-2-94 14-30-16-57-18-94-14Z" fill="#fff" opacity=".96"/>
+  <path d="M128 56l17 48 50 2-39 30 13 50-41-29-41 29 13-50-39-30 50-2 17-48Z" fill="#e6c67b"/>
+  <path d="M96 152h64v15H96z" fill="#fff" opacity=".88"/>
 </svg>

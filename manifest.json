@@ -1,12 +1,26 @@
 {
-  "name": "Piloto Aviación Policial",
-  "short_name": "Piloto AP",
+  "name": "Tripulante Aviación Policial",
+  "short_name": "Tripulante AP",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f4f8fc",
-  "theme_color": "#0b3158",
-  "description": "Control personal de peso y balance, vuelos, fatiga y reporte de horas.",
+  "background_color": "#eef4f8",
+  "theme_color": "#092d4d",
+  "description": "Gestión personal de vuelos, horas, fatiga y peso y balance.",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }

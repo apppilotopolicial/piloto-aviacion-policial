@@ -50,7 +50,7 @@ const AIRCRAFTS = [
 const STORAGE_KEY = 'cpc_flights_v1';
 const PROFILE_KEY = 'cpc_profile_v1';
 const HISTORICAL_HOURS_KEY = 'cpc_historical_hours_v1';
-const APP_VERSION = 'v4.3';
+const APP_VERSION = 'v4.4';
 const DRIVE_SETTINGS_KEY = 'pap_drive_settings_v1';
 const LOCAL_BACKUP_KEY = 'pap_local_backup_v1';
 const GOOGLE_DRIVE_CLIENT_ID = ''; // Configurar aquí antes de publicar en GitHub Pages. También se puede ingresar desde Configuración.
@@ -79,7 +79,7 @@ const setFlights = (flights) => localStorage.setItem(STORAGE_KEY, JSON.stringify
 const getHistoricalHours = () => JSON.parse(localStorage.getItem(HISTORICAL_HOURS_KEY) || '[]');
 const setHistoricalHours = (rows) => localStorage.setItem(HISTORICAL_HOURS_KEY, JSON.stringify(rows));
 const getDriveSettings = () => {
-  const defaults = { clientId:'', reminderDays:5, autoSync:true, lastDriveBackupAt:'', lastLocalBackupAt:'', lastSnoozeAt:'', pendingBackup:false, dataChangedAt:'' };
+  const defaults = { clientId:'', reminderDays:1, autoSync:true, lastDriveBackupAt:'', lastLocalBackupAt:'', lastSnoozeAt:'', pendingBackup:false, dataChangedAt:'' };
   try { return {...defaults, ...JSON.parse(localStorage.getItem(DRIVE_SETTINGS_KEY) || '{}')}; } catch(e) { return defaults; }
 };
 const setDriveSettings = (settings) => localStorage.setItem(DRIVE_SETTINGS_KEY, JSON.stringify({...getDriveSettings(), ...settings}));
@@ -130,7 +130,7 @@ function getConfiguredGoogleClientId(){
 function getBackupPayload(){
   return {
     schema:'piloto-aviacion-policial-backup-v1',
-    appName:'Piloto Aviación Policial',
+    appName:'Tripulante Aviación Policial',
     appVersion:APP_VERSION,
     exportedAt:new Date().toISOString(),
     profile:JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}'),
@@ -416,13 +416,13 @@ function bindForms(){
   document.getElementById('deleteAll').addEventListener('click', deleteAllFlights);
   if (document.getElementById('resetAppSetup')) document.getElementById('resetAppSetup').addEventListener('click', resetAppFromZero);
   if (document.getElementById('saveDriveSettings')) document.getElementById('saveDriveSettings').addEventListener('click', saveDriveSettingsForm);
-  if (document.getElementById('connectDrive')) document.getElementById('connectDrive').addEventListener('click', connectDrive);
+  if (document.getElementById('connectDrive')) document.getElementById('connectDrive').addEventListener('click', () => connectDrive().catch(e => alert('No se pudo conectar Google Drive: ' + (e && e.message ? e.message : e))));
   if (document.getElementById('driveBackupNow')) document.getElementById('driveBackupNow').addEventListener('click', () => backupToDrive({silent:false}));
   if (document.getElementById('driveRestoreNow')) document.getElementById('driveRestoreNow').addEventListener('click', restoreFromDrive);
   if (document.getElementById('saveLicenseSettings')) document.getElementById('saveLicenseSettings').addEventListener('click', saveLicenseSettingsForm);
   if (document.getElementById('checkLicenseNow')) document.getElementById('checkLicenseNow').addEventListener('click', () => checkLicenseAccess({interactive:true, silent:false}));
   if (document.getElementById('accessCheckLicense')) document.getElementById('accessCheckLicense').addEventListener('click', () => checkLicenseAccess({interactive:true, silent:false}));
-  if (document.getElementById('accessConnectDrive')) document.getElementById('accessConnectDrive').addEventListener('click', async () => { await connectDrive(); await checkLicenseAccess({interactive:false, silent:false}); });
+  if (document.getElementById('accessConnectDrive')) document.getElementById('accessConnectDrive').addEventListener('click', async () => { try { await connectDrive(); await checkLicenseAccess({interactive:false, silent:false}); } catch(e) { alert('No se pudo conectar Google Drive: ' + (e && e.message ? e.message : e)); } });
 }
 
 
@@ -509,7 +509,7 @@ function completeOnboarding(){
   const p = JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
   const cfg = getAircraftConfig();
   const done = document.getElementById('onboardDoneSummary');
-  if (done) done.innerHTML = `<b>Piloto:</b> ${escapeHtml([p.rank,p.name].filter(Boolean).join(' '))}<br><b>Correo:</b> ${escapeHtml(p.email||'')}<br><b>Aeronaves:</b> ${escapeHtml((cfg.types||[]).join(', '))}<br><b>Aeronave principal:</b> ${escapeHtml(cfg.mainRegistration||'No aplica')}`;
+  if (done) done.innerHTML = `<b>Tripulante:</b> ${escapeHtml([p.rank,p.name].filter(Boolean).join(' '))}<br><b>Correo:</b> ${escapeHtml(p.email||'')}<br><b>Aeronaves:</b> ${escapeHtml((cfg.types||[]).join(', '))}<br><b>Principal:</b> ${escapeHtml(cfg.mainRegistration||'No aplica')}`;
   localStorage.setItem(ONBOARDING_KEY, 'yes');
   markDataChanged();
   queueDriveAutoBackup('configuración inicial');
@@ -579,7 +579,7 @@ function renderHomeDashboard(){
   const cfg = getAircraftConfig();
   const pilotEl = document.getElementById('homePilotIdentity');
   const mainEl = document.getElementById('homeMainAircraftCard');
-  if(pilotEl) pilotEl.textContent = [profile.rank, profile.name].filter(Boolean).join(' ') || 'Piloto / Operador';
+  if(pilotEl) pilotEl.textContent = [profile.rank, profile.name].filter(Boolean).join(' ') || 'Tripulante';
   if(mainEl) mainEl.textContent = `Aeronave principal: ${cfg.mainRegistration || 'No configurada'}`;
 }
 
@@ -1420,7 +1420,7 @@ function saveDriveSettingsForm(){
   const autoSync = document.getElementById('driveAutoSync') ? document.getElementById('driveAutoSync').checked : true;
   if (!GOOGLE_DRIVE_CLIENT_ID) setDriveSettings({clientId, reminderDays, autoSync});
   else setDriveSettings({reminderDays, autoSync});
-  renderDriveStatus('Configuración de Google Drive guardada.');
+  renderDriveStatus('Configuración guardada. Para conectar Drive toca Conectar Google Drive y autoriza la cuenta.');
   renderBackupReminder();
 }
 function renderDriveStatus(message){
@@ -1429,10 +1429,10 @@ function renderDriveStatus(message){
   const s = getDriveSettings();
   const clientOk = !!getConfiguredGoogleClientId();
   const lastDrive = s.lastDriveBackupAt ? new Date(s.lastDriveBackupAt).toLocaleString() : 'Sin respaldo en Drive';
-  const tokenStatus = driveAccessToken ? 'Con sesión autorizada' : 'Sin sesión autorizada';
+  const tokenStatus = driveAccessToken ? 'Drive conectado' : 'Drive no conectado';
   const warning = location.protocol === 'file:' ? '<br><b>Nota:</b> Google Drive no funcionará abierto como archivo local. Debe publicarse en HTTPS, por ejemplo GitHub Pages.' : '';
   el.classList.remove('hidden');
-  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}${clientOk ? 'Client ID configurado.' : '<b>Falta configurar el Google OAuth Client ID.</b>'}<br>${tokenStatus}.<br>Último respaldo: ${escapeHtml(lastDrive)}.${warning}`;
+  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}${clientOk ? 'Client ID configurado.' : '<b>Falta configurar el Google OAuth Client ID.</b>'}<br>${tokenStatus}.<br>Última sincronización: ${escapeHtml(lastDrive)}.${warning}`;
 }
 function daysSince(dateIso){
   if (!dateIso) return Infinity;
@@ -1456,7 +1456,7 @@ function renderBackupReminder(){
   const last = s.lastDriveBackupAt || s.lastLocalBackupAt;
   const age = last ? `${Math.floor(daysSince(last))} día(s)` : 'sin copia previa';
   el.classList.remove('hidden');
-  el.innerHTML = `<b>Copia de seguridad recomendada</b><br>Último respaldo: ${escapeHtml(age)}. Guarda tus horas para no perderlas si cambias de teléfono o se borra el caché.<div class="form-actions"><button type="button" id="reminderDriveBackup">Guardar en Google Drive</button><button type="button" id="reminderLocalBackup" class="ghost">Exportar JSON</button><button type="button" id="reminderSnooze" class="ghost">Recordarme después</button></div>`;
+  el.innerHTML = `<b>Respaldo pendiente</b><br>Última sincronización: ${escapeHtml(age)}. Actualiza tu copia para proteger perfil, horas y vuelos.<div class="form-actions"><button type="button" id="reminderDriveBackup">Guardar en Google Drive</button><button type="button" id="reminderLocalBackup" class="ghost">Exportar JSON</button><button type="button" id="reminderSnooze" class="ghost">Recordarme después</button></div>`;
   const driveBtn = document.getElementById('reminderDriveBackup');
   const localBtn = document.getElementById('reminderLocalBackup');
   const snoozeBtn = document.getElementById('reminderSnooze');
@@ -1485,10 +1485,13 @@ async function connectDrive(){
     saveDriveSettingsForm();
     await requestDriveToken(true);
     const file = await findDriveBackupFile();
-    renderDriveStatus(file ? `Google Drive conectado. Se encontró respaldo: ${file.modifiedTime || file.name}.` : 'Google Drive conectado. Aún no hay respaldo creado.');
+    renderDriveStatus(file ? `Google Drive conectado. Respaldo encontrado: ${file.modifiedTime || file.name}.` : 'Google Drive conectado. Aún no hay respaldo creado.');
     if (getConfiguredLicenseUrl()) await checkLicenseAccess({interactive:false, silent:true});
+    return true;
   } catch(e) {
-    renderDriveStatus('Error al conectar: ' + (e && e.message ? e.message : e));
+    const msg = e && e.message ? e.message : String(e);
+    renderDriveStatus('No se pudo conectar Google Drive: ' + msg);
+    throw e;
   }
 }
 async function driveFetch(url, options={}){

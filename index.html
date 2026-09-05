@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b3158" />
-  <title>Piloto Aviación Policial</title>
+  <title>Tripulante Aviación Policial</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css?v=43" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="styles.css?v=44" />
 </head>
 <body>
   <div class="sky-layer"></div>
@@ -16,9 +17,9 @@
         <div class="logo-mark"><span>✦</span></div>
       </div>
       <div>
-        <div class="eyebrow">DISCIPLINA · SERVICIO · SEGURIDAD</div>
-        <h1>Piloto Aviación Policial</h1>
-        <p>Volar es más que operar una aeronave: es servir con disciplina, criterio y responsabilidad.</p>
+        <div class="eyebrow">Gestión de vuelo</div>
+        <h1>Tripulante Aviación Policial</h1>
+        <p>Vuelos, horas, fatiga y peso y balance.</p>
       </div>
     </div>
   </header>
@@ -28,28 +29,26 @@
     <div class="onboarding-card">
       <div class="onboarding-top">
         <span class="hero-badge">Configuración inicial</span>
-        <strong>Piloto Aviación Policial</strong>
+        <strong>Tripulante Aviación Policial</strong>
       </div>
 
       <div class="onboard-step active" data-step="welcome">
         <div class="welcome-emblem"><img src="brand-wings.svg" alt="" /></div>
-        <h2>Bienvenido</h2>
-        <p class="welcome-subtitle">A un vuelo con propósito</p>
-        <p class="lead">Volar es más que operar una aeronave: es servir con disciplina, criterio y responsabilidad.</p>
-        <p>Configura tu perfil para adaptar la app a tus aeronaves, horas acumuladas, respaldo de información y control operacional.</p>
+        <h2>Tripulante Aviación Policial</h2>
+        <p class="welcome-subtitle">Gestión personal de vuelos, horas, fatiga y peso y balance.</p>
         <div class="form-actions stacked-actions">
-          <button type="button" id="onboardCreateProfile">Crear perfil nuevo</button>
-          <button type="button" id="onboardRestoreProfile" class="ghost">Restaurar perfil existente</button>
+          <button type="button" id="onboardCreateProfile">Crear perfil</button>
+          <button type="button" id="onboardRestoreProfile" class="ghost">Restaurar perfil</button>
         </div>
       </div>
 
       <div class="onboard-step" data-step="profile">
-        <h2>Datos del piloto</h2>
-        <p>Estos datos se usarán para tu perfil, reportes, firmas y respaldo.</p>
+        <h2>Perfil del tripulante</h2>
+        <p>Ingresa la información básica del tripulante.</p>
         <div class="form-grid">
           <label>Grado<input id="onboardRank" placeholder="Ej: MY" /></label>
-          <label>Nombres y apellidos<input id="onboardName" placeholder="Nombre completo" /></label>
-          <label>Correo Google / Gmail<input id="onboardEmail" type="email" placeholder="correo@gmail.com" /></label>
+          <label>Nombre completo<input id="onboardName" placeholder="Nombre completo" /></label>
+          <label>Correo Gmail<input id="onboardEmail" type="email" placeholder="correo@gmail.com" /></label>
           <label>Unidad / base<input id="onboardUnit" placeholder="Opcional" /></label>
         </div>
         <div class="form-actions">
@@ -60,19 +59,19 @@
 
       <div class="onboard-step" data-step="drive">
         <h2>Respaldo y conservación</h2>
-        <p>Para conservar tu información y recuperarla en otro teléfono, la app usará tu cuenta Google Drive.</p>
-        <div class="notice soft">Si continúas sin conectar Drive, los datos quedan únicamente en este dispositivo y podrían perderse si se borra caché, se eliminan datos del sitio, se desinstala la app o cambias de teléfono.</div>
+        <p>Conecta tu cuenta Google para respaldar y recuperar tus datos.</p>
+        <div class="notice soft">Escribir el correo no conecta Drive. Debes autorizar la cuenta con el botón. Sin Drive, los datos quedan solo en este dispositivo y pueden perderse.</div>
         <div class="form-actions stacked-actions">
           <button type="button" id="onboardConnectDrive">Conectar Google Drive</button>
-          <button type="button" id="onboardContinueLocal" class="ghost">Continuar bajo mi responsabilidad</button>
+          <button type="button" id="onboardContinueLocal" class="ghost">Usar solo este dispositivo</button>
         </div>
       </div>
 
       <div class="onboard-step" data-step="aircraft">
         <h2>Aeronaves que vuelas</h2>
-        <p>Selecciona tus aeronaves. La app habilitará automáticamente las funciones disponibles para ellas.</p>
+        <p>Selecciona las aeronaves que vuelas actualmente.</p>
         <div class="check-grid">
-          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="CARAVAN" checked /> Caravan <small>Peso y Balance disponible</small></label>
+          <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="CARAVAN" checked /> Caravan <small>W&B disponible</small></label>
           <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="B200" /> B200 <small>Horas y fatiga</small></label>
           <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="B300" /> B300 <small>Horas y fatiga</small></label>
           <label class="checkbox-line"><input type="checkbox" class="onboardAircraft" value="B350" /> B350 <small>Horas y fatiga</small></label>
@@ -90,7 +89,7 @@
 
       <div class="onboard-step" data-step="mainAircraft">
         <h2>Caravan principal</h2>
-        <p>Selecciona la matrícula que aparecerá por defecto en Peso y Balance y Registro de Vuelo.</p>
+        <p>Selecciona la matrícula principal para registro y peso y balance.</p>
         <div class="form-grid">
           <label>Matrícula principal<select id="onboardMainAircraft">
             <option value="PNC3018">PNC3018 — C-208 / Formato 3018</option>
@@ -100,7 +99,7 @@
             <option value="PNC0253">PNC0253 — Formato base Caravan</option>
           </select></label>
         </div>
-        <div class="notice soft">Peso y Balance solo se habilita para aeronaves con formato técnico disponible. Por ahora, la aeronave habilitada es Caravan.</div>
+        <div class="notice soft">La app asigna automáticamente el formato de peso y balance según la matrícula.</div>
         <div class="form-actions">
           <button type="button" id="onboardMainAircraftNext">Continuar</button>
           <button type="button" class="ghost" data-onboard-back="aircraft">Atrás</button>
@@ -109,8 +108,8 @@
 
       <div class="onboard-step" data-step="initialHours">
         <h2>Horas iniciales</h2>
-        <p>Puedes cargarlas ahora o hacerlo después desde Reporte Horas. Estas horas se incorporan al total general, no aparecen como reporte aparte.</p>
-        <div class="notice soft">PA y AL corresponden a entrenamiento inicial y también suman al total general.</div>
+        <p>Registra las horas acumuladas antes de empezar a usar la app.</p>
+        <div class="notice soft">PA y AL son entrenamiento inicial y suman al total general.</div>
         <div class="form-actions stacked-actions">
           <button type="button" id="onboardGoInitialHours">Cargar horas iniciales ahora</button>
           <button type="button" id="onboardSkipInitialHours" class="ghost">Omitir por ahora</button>
@@ -119,7 +118,7 @@
 
       <div class="onboard-step" data-step="restore">
         <h2>Restaurar perfil existente</h2>
-        <p>Usa esta opción en un teléfono nuevo. Conecta el mismo Google Drive y restaura tu respaldo.</p>
+        <p>Recupera tu información desde el respaldo asociado a tu cuenta Google.</p>
         <div class="form-actions stacked-actions">
           <button type="button" id="onboardRestoreDrive">Restaurar desde Google Drive</button>
           <label class="button-like ghost">Importar respaldo local<input id="onboardImportBackup" type="file" accept="application/json,.json" /></label>
@@ -140,15 +139,15 @@
   <div id="accessGate" class="access-gate hidden">
     <div class="access-card">
       <span class="hero-badge">Acceso protegido</span>
-      <h2>Piloto Aviación Policial</h2>
-      <p>Para usar la app de manera operativa, debes validar tu acceso con la cuenta Google autorizada. El enlace puede abrirse, pero las funciones quedan protegidas por licencia activa.</p>
+      <h2>Tripulante Aviación Policial</h2>
+      <p>Valida el acceso con la cuenta Gmail autorizada.</p>
       <label>Correo Google autorizado<input id="accessEmail" type="email" placeholder="correo@gmail.com" /></label>
       <div id="accessStatus" class="notice soft">Pendiente de verificación.</div>
       <div class="form-actions">
         <button id="accessConnectDrive" type="button">Conectar Google Drive</button>
         <button id="accessCheckLicense" type="button" class="ghost">Verificar acceso</button>
       </div>
-      <p class="muted">Si no tienes licencia activa, solicita la activación al administrador de la app con el mismo correo Gmail que usarás para tus respaldos.</p>
+      <p class="muted">La licencia se activa con el correo Gmail registrado por el administrador.</p>
     </div>
   </div>
 
@@ -156,21 +155,21 @@
     <section id="home" class="screen active">
       <div class="hero-card premium-home">
         <div class="hero-copy">
-          <span class="hero-badge">Piloto Aviación Policial · v4.3</span>
-          <h2>Buen vuelo, Capitán</h2>
-          <p>Planifica, registra y protege tu información de vuelo con una herramienta diseñada para servir con disciplina, criterio y responsabilidad.</p>
+          <span class="hero-badge">Inicio</span>
+          <h2>Tripulante Aviación Policial</h2>
+          <p>Gestión personal de vuelos, horas, fatiga y peso y balance.</p>
           <div class="profile-flight-card">
             <div class="pilot-avatar">✈</div>
             <div>
-              <strong id="homePilotIdentity">Piloto / Operador</strong>
+              <strong id="homePilotIdentity">Tripulante</strong>
               <small id="homeMainAircraftCard">Aeronave principal: PNC3018</small>
             </div>
             <div class="sync-chip"><span></span>Respaldo</div>
           </div>
           <div class="hero-tags">
-            <span class="pill gold">Cielos más seguros</span>
-            <span class="pill">Control operacional</span>
-            <span class="pill">Más que una app</span>
+            <span class="pill gold">Vuelos</span>
+            <span class="pill">Horas</span>
+            <span class="pill">Respaldo</span>
           </div>
         </div>
       </div>
@@ -178,15 +177,15 @@
       <div class="status-strip">
         <div class="strip-card">
           <span class="strip-label">Perfil</span>
-          <strong>Piloto / Operador</strong>
+          <strong>Tripulante</strong>
         </div>
         <div class="strip-card">
-          <span class="strip-label">Lógica</span>
+          <span class="strip-label">Módulos</span>
           <strong>Horas · Fatiga · W&amp;B</strong>
         </div>
         <div class="strip-card">
-          <span class="strip-label">Salida</span>
-          <strong>Reporte y PDF</strong>
+          <span class="strip-label">Respaldo</span>
+          <strong>Drive / Local</strong>
         </div>
       </div>
 
@@ -217,39 +216,33 @@
         </div>
       </div>
 
-      <div class="operations-banner card">
+      <div class="operations-banner card compact-banner">
         <div>
-          <span class="screen-kicker">Bitácora operacional</span>
-          <h3>Panel operacional del piloto</h3>
-          <p>Interfaz rediseñada con un estilo más limpio, profesional y equilibrado, conservando el enfoque técnico para vuelo, horas, fatiga y peso y balance.</p>
-        </div>
-        <div class="operations-side">
-          <span class="pill gold">Piloto</span>
-          <span class="pill">Disciplina</span>
-          <span class="pill">Operación</span>
+          <span class="screen-kicker">Panel principal</span>
+          <h3>Herramientas activas</h3>
         </div>
       </div>
 
       <div class="menu-grid">
         <button class="menu-button" data-go="weightBalance">
           <span class="menu-icon">⚖</span>
-          <span class="menu-copy"><strong>Peso y Balance</strong><small>Cálculo por estaciones y PDF digital alineado</small></span>
+          <span class="menu-copy"><strong>Peso y Balance</strong><small>Cálculo y formato PDF</small></span>
         </button>
         <button class="menu-button" data-go="registerFlight">
           <span class="menu-icon">✈</span>
-          <span class="menu-copy"><strong>Registrar Nuevo Vuelo</strong><small>Horas máquina y horas hombre</small></span>
+          <span class="menu-copy"><strong>Registrar vuelo</strong><small>Horas máquina y horas hombre</small></span>
         </button>
         <button class="menu-button" data-go="fatigue">
           <span class="menu-icon">⏱</span>
-          <span class="menu-copy"><strong>Fatiga</strong><small>Disponibilidad 8 y 15 días · recargas</small></span>
+          <span class="menu-copy"><strong>Fatiga</strong><small>Rangos 8 y 15 días</small></span>
         </button>
         <button class="menu-button" data-go="hoursReport">
           <span class="menu-icon">📊</span>
-          <span class="menu-copy"><strong>Reporte Horas</strong><small>Totales por filtro opcional</small></span>
+          <span class="menu-copy"><strong>Reporte de horas</strong><small>Horas acumuladas</small></span>
         </button>
         <button class="menu-button secondary" data-go="settings">
           <span class="menu-icon">⚙</span>
-          <span class="menu-copy"><strong>Configuración</strong><small>Perfil, respaldo y aeronaves</small></span>
+          <span class="menu-copy"><strong>Configuración</strong><small>Perfil, Drive y licencia</small></span>
         </button>
       </div>
     </section>
@@ -293,7 +286,7 @@
       <div id="reportResult" class="card result-card"></div>
       <div class="card">
         <h3>Configurar horas iniciales</h3>
-        <p class="card-subtitle">Se cargan una sola vez y quedan incorporadas al total normal del reporte de horas. PA y AL corresponden a entrenamiento inicial y también suman al total general.</p>
+        <p class="card-subtitle">Se cargan una sola vez y quedan incorporadas al total normal del reporte de horas. PA y AL son entrenamiento inicial y suman al total general.</p>
         <form id="initialHoursForm" class="form-grid">
           <label>Fecha de corte<input type="date" id="initialCutoffDate" required /></label>
           <label>Tipo / aeronave histórica<input id="initialAircraftType" list="initialAircraftTypeList" placeholder="Ej: CARAVAN, B-1900, C-172, C-206G" required /></label>
@@ -378,21 +371,21 @@
         <p class="muted">Para no pagar pasarela, el administrador activa manualmente el Gmail del piloto en una hoja privada de Google Sheets. La app consulta esa lista al iniciar.</p>
       </div>
       <div class="card">
-        <h3>Respaldo en Google Drive</h3>
-        <p class="card-subtitle">Guarda y restaura el perfil, horas iniciales y vuelos en el Drive del piloto. Para funcionar debe estar publicada en HTTPS y tener configurado el Client ID de Google.</p>
+        <h3>Google Drive</h3>
+        <p class="card-subtitle">El correo solo identifica al tripulante. Para respaldar datos debes tocar Conectar Google Drive y autorizar la cuenta.</p>
         <div id="driveStatus" class="notice soft">Google Drive sin conectar.</div>
         <div class="form-grid">
           <label>Google OAuth Client ID<input id="googleClientId" placeholder="Se configura una vez antes de publicar" /></label>
-          <label>Días para recordar respaldo<select id="backupReminderDays"><option value="3">Cada 3 días</option><option value="5">Cada 5 días</option></select></label>
+          <label>Recordatorio de respaldo<select id="backupReminderDays"><option value="1">Cada 24 horas</option><option value="3">Cada 3 días</option><option value="5">Cada 5 días</option></select></label>
           <label class="checkbox-line"><input id="driveAutoSync" type="checkbox" /> Sincronizar automáticamente cuando sea posible</label>
         </div>
         <div class="form-actions">
-          <button id="saveDriveSettings" class="ghost">Guardar configuración Drive</button>
+          <button id="saveDriveSettings" class="ghost">Guardar configuración</button>
           <button id="connectDrive" type="button">Conectar Google Drive</button>
           <button id="driveBackupNow" type="button" class="ghost">Guardar respaldo en Drive</button>
           <button id="driveRestoreNow" type="button" class="ghost">Restaurar desde Drive</button>
         </div>
-        <p class="muted">El archivo se guarda en la carpeta privada de datos de la app dentro de Google Drive. Para recuperar en otro teléfono, se debe entrar con el mismo correo de Google.</p>
+        <p class="muted">El respaldo queda asociado a la cuenta Google autorizada. Para recuperar en otro teléfono, usa Restaurar perfil con esa misma cuenta.</p>
       </div>
       <div class="card">
         <h3>Aeronaves iniciales</h3>
@@ -408,6 +401,6 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>if(!window.PDFLib){document.write('<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"><\/script>')}</script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="app.js?v=43"></script>
+  <script src="app.js?v=44"></script>
 </body>
 </html>
