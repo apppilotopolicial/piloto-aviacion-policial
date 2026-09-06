@@ -50,7 +50,7 @@ const AIRCRAFTS = [
 const STORAGE_KEY = 'cpc_flights_v1';
 const PROFILE_KEY = 'cpc_profile_v1';
 const HISTORICAL_HOURS_KEY = 'cpc_historical_hours_v1';
-const APP_VERSION = 'v4.5';
+const APP_VERSION = 'v4.7';
 const DRIVE_SETTINGS_KEY = 'pap_drive_settings_v1';
 const LOCAL_BACKUP_KEY = 'pap_local_backup_v1';
 const GOOGLE_DRIVE_CLIENT_ID = ''; // Configurar aquí antes de publicar en GitHub Pages. También se puede ingresar desde Configuración.
@@ -90,7 +90,7 @@ const getLicenseSettings = () => {
 const setLicenseSettings = (settings) => localStorage.setItem(LICENSE_SETTINGS_KEY, JSON.stringify({...getLicenseSettings(), ...settings}));
 
 const getAircraftConfig = () => {
-  const defaults = { types:['CARAVAN'], mainRegistration:'PNC3018', weightBalanceTypes:['CARAVAN'], completedAt:'' };
+  const defaults = { types:['CARAVAN'], mainRegistration:'PNC3018', currentRegistration:'PNC3018', enduranceHours:'', weightBalanceTypes:['CARAVAN'], completedAt:'' };
   try { return {...defaults, ...JSON.parse(localStorage.getItem(AIRCRAFT_CONFIG_KEY) || '{}')}; } catch(e) { return defaults; }
 };
 const setAircraftConfig = (cfg) => localStorage.setItem(AIRCRAFT_CONFIG_KEY, JSON.stringify({...getAircraftConfig(), ...cfg}));
@@ -125,7 +125,9 @@ function licenseIsActive(){
 
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 function getConfiguredGoogleClientId(){
-  return (GOOGLE_DRIVE_CLIENT_ID || getDriveSettings().clientId || '').trim();
+  const onboardingInput = document.getElementById('onboardGoogleClientId');
+  const settingsInput = document.getElementById('googleClientId');
+  return (GOOGLE_DRIVE_CLIENT_ID || (onboardingInput && onboardingInput.value) || (settingsInput && settingsInput.value) || getDriveSettings().clientId || '').trim();
 }
 function getBackupPayload(){
   return {
@@ -389,7 +391,8 @@ function fillSelects() {
   const cfg = getAircraftConfig();
   const allowedAircrafts = cfg.types && cfg.types.includes('CARAVAN') ? AIRCRAFTS : AIRCRAFTS;
   const aircraftOptions = allowedAircrafts.map(a => `<option value="${a.registration}">${a.registration} - ${a.model}</option>`).join('');
-  ['flightAircraft','wbAircraft'].forEach(id => { const el=document.getElementById(id); if (el) { el.innerHTML = aircraftOptions; if (cfg.mainRegistration && [...el.options].some(o=>o.value===cfg.mainRegistration)) el.value = cfg.mainRegistration; } });
+  const currentRegistration = cfg.currentRegistration || cfg.mainRegistration;
+  ['flightAircraft','wbAircraft','profileCurrentAircraft'].forEach(id => { const el=document.getElementById(id); if (el) { el.innerHTML = aircraftOptions; if (currentRegistration && [...el.options].some(o=>o.value===currentRegistration)) el.value = currentRegistration; } });
   document.getElementById('reportAircraft').innerHTML = `<option value="">Todas</option>` + aircraftOptions;
   const positionOptions = POSITIONS.map(p => `<option value="${p.code}">${p.code} - ${p.name}</option>`).join('');
   const allPositionOptions = ALL_POSITION_OPTIONS().map(p => `<option value="${p.code}">${p.code} - ${p.name}</option>`).join('');
@@ -491,8 +494,9 @@ function initOnboardingControls(){
     else showOnboardingStep('initialHours');
   });
   bind('onboardMainAircraftNext', () => {
-    const mainRegistration = document.getElementById('onboardMainAircraft').value;
-    setAircraftConfig({mainRegistration});
+    const currentRegistration = document.getElementById('onboardMainAircraft').value;
+    const enduranceHours = document.getElementById('onboardEnduranceHours') ? document.getElementById('onboardEnduranceHours').value.trim() : '';
+    setAircraftConfig({mainRegistration: currentRegistration, currentRegistration, enduranceHours});
     fillSelects();
     renderModuleAvailability();
     showOnboardingStep('initialHours');
@@ -509,7 +513,7 @@ function completeOnboarding(){
   const p = JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
   const cfg = getAircraftConfig();
   const done = document.getElementById('onboardDoneSummary');
-  if (done) done.innerHTML = `<b>Tripulante:</b> ${escapeHtml([p.rank,p.name].filter(Boolean).join(' '))}<br><b>Correo:</b> ${escapeHtml(p.email||'')}<br><b>Aeronaves:</b> ${escapeHtml((cfg.types||[]).join(', '))}<br><b>Principal:</b> ${escapeHtml(cfg.mainRegistration||'No aplica')}`;
+  if (done) done.innerHTML = `<b>Tripulante:</b> ${escapeHtml([p.rank,p.name].filter(Boolean).join(' '))}<br><b>Correo:</b> ${escapeHtml(p.email||'')}<br><b>Aeronaves:</b> ${escapeHtml((cfg.types||[]).join(', '))}<br><b>Aeronave actual:</b> ${escapeHtml((cfg.currentRegistration||cfg.mainRegistration)||'No aplica')}`;
   localStorage.setItem(ONBOARDING_KEY, 'yes');
   markDataChanged();
   queueDriveAutoBackup('configuración inicial');
@@ -580,7 +584,7 @@ function renderHomeDashboard(){
   const pilotEl = document.getElementById('homePilotIdentity');
   const mainEl = document.getElementById('homeMainAircraftCard');
   const pilotName = [profile.rank, profile.name].filter(Boolean).join(' ') || 'Tripulante';
-  const aircraftLine = `Aeronave principal: ${cfg.mainRegistration || 'No configurada'}`;
+  const aircraftLine = `Aeronave actual: ${(cfg.currentRegistration || cfg.mainRegistration) || 'No configurada'}${cfg.enduranceHours ? ' · Autonomía ' + cfg.enduranceHours + ' h' : ''}`;
   if(pilotEl) pilotEl.textContent = pilotName;
   if(mainEl) mainEl.textContent = aircraftLine;
   const pilotMirror = document.getElementById('homePilotIdentityMirror');
@@ -1272,15 +1276,27 @@ function saveProfile(){
     unit: profileUnit.value,
     email: document.getElementById('profileEmail') ? document.getElementById('profileEmail').value.trim().toLowerCase() : ''
   };
+  const currentAircraftEl = document.getElementById('profileCurrentAircraft');
+  const enduranceEl = document.getElementById('profileEnduranceHours');
+  if (currentAircraftEl) {
+    const currentRegistration = currentAircraftEl.value;
+    setAircraftConfig({mainRegistration: currentRegistration, currentRegistration, enduranceHours: enduranceEl ? enduranceEl.value.trim() : ''});
+    fillSelects();
+  }
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
   markDataChanged();
   queueDriveAutoBackup('perfil');
+  renderHomeDashboard();
   alert('Perfil guardado.');
 }
 function loadProfile(){
   const p = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
   profileName.value = p.name || ''; profileRank.value = p.rank || ''; profileLicense.value = p.license || ''; profileUnit.value = p.unit || '';
   if (document.getElementById('profileEmail')) document.getElementById('profileEmail').value = p.email || '';
+  const cfg = getAircraftConfig();
+  const currentEl = document.getElementById('profileCurrentAircraft');
+  if (currentEl && currentEl.options.length) currentEl.value = cfg.currentRegistration || cfg.mainRegistration || 'PNC3018';
+  if (document.getElementById('profileEnduranceHours')) document.getElementById('profileEnduranceHours').value = cfg.enduranceHours || '';
 }
 function renderAircraftList(){
   aircraftList.innerHTML = AIRCRAFTS.map(a => `<p><span class="pill">${a.registration}</span> ${a.type} · ${a.model} · Ramp ${a.limits.ramp} lb</p>`).join('');
@@ -1427,7 +1443,7 @@ function loadDriveSettingsForm(){
   if (document.getElementById('driveAutoSync')) document.getElementById('driveAutoSync').checked = s.autoSync !== false;
 }
 function saveDriveSettingsForm(){
-  const clientId = document.getElementById('googleClientId') ? document.getElementById('googleClientId').value.trim() : '';
+  const clientId = (document.getElementById('googleClientId') ? document.getElementById('googleClientId').value.trim() : '') || (document.getElementById('onboardGoogleClientId') ? document.getElementById('onboardGoogleClientId').value.trim() : '');
   const reminderDays = Number(document.getElementById('backupReminderDays') ? document.getElementById('backupReminderDays').value : 5) || 5;
   const autoSync = document.getElementById('driveAutoSync') ? document.getElementById('driveAutoSync').checked : true;
   if (!GOOGLE_DRIVE_CLIENT_ID) setDriveSettings({clientId, reminderDays, autoSync});
@@ -1478,7 +1494,7 @@ function renderBackupReminder(){
 }
 async function requestDriveToken(interactive=true){
   const clientId = getConfiguredGoogleClientId();
-  if (!clientId) throw new Error('Falta configurar el Google Client ID. Es una configuración técnica necesaria para que Drive funcione; escribir el correo no conecta Drive.');
+  if (!clientId) throw new Error('Falta configurar el Google Client ID. Es obligatorio para abrir la autorización real de Google Drive; escribir el correo Gmail no conecta Drive.');
   if (!window.google || !google.accounts || !google.accounts.oauth2) throw new Error('No cargó Google Identity Services. Verifique conexión a internet y que la app esté publicada en HTTPS.');
   return await new Promise((resolve, reject) => {
     const tokenClient = google.accounts.oauth2.initTokenClient({
