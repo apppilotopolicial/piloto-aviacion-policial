@@ -1,11 +1,11 @@
-Tripulante Aviación Policial - v4.7
+TRIPULANTE AVIACIÓN POLICIAL - v4.8
 
-Cambios:
-- Fondo visual con helicóptero y avión bimotor.
-- Ícono oficial de alas doradas aprobado.
-- Texto cambiado de Aeronave principal a Aeronave actual.
-- Campo Autonomía actual en onboarding y configuración.
-- Google Drive ahora se solicita durante creación de perfil y requiere Google Client ID.
-- Mejoras de orden móvil y animaciones suaves.
+Versión con Google OAuth Client ID integrado para activar el botón Conectar Google Drive.
 
-Subir a GitHub los archivos sueltos, no el ZIP.
+Subir a GitHub Pages:
+1. Descomprimir este ZIP.
+2. Subir los archivos sueltos al repositorio.
+3. Reemplazar los archivos existentes.
+4. Abrir https://apppilotopolicial.github.io/piloto-aviacion-policial/?reset=1
+
+En iPhone, borrar el icono anterior y agregar nuevamente a pantalla de inicio para refrescar icono y caché.

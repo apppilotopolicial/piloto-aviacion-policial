@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=47" />
   <link rel="icon" type="image/png" href="icon-192.png?v=47" />
-  <link rel="stylesheet" href="styles.css?v=47" />
+  <link rel="stylesheet" href="styles.css?v=48" />
 </head>
 <body>
   <div class="sky-layer"></div>
@@ -59,11 +59,9 @@
 
       <div class="onboard-step" data-step="drive">
         <h2>Respaldo y conservación</h2>
-        <p>Autoriza Google Drive para guardar y recuperar tu información.</p>
-        <div class="notice soft">El correo no conecta Drive. Debes tocar Conectar Google Drive y autorizar la cuenta. Sin esa autorización, los datos quedan solo en este dispositivo.</div>
-        <div class="form-grid drive-setup-grid">
-          <label>Google Client ID<input id="onboardGoogleClientId" placeholder="Se configura una vez para activar Drive" /></label>
-        </div>
+        <p>Conecta Google Drive para guardar y recuperar tu información.</p>
+        <div class="notice soft">El correo solo identifica el perfil. Para activar el respaldo debes tocar Conectar Google Drive y autorizar la cuenta.</div>
+        <input id="onboardGoogleClientId" type="hidden" value="" />
         <div class="form-actions stacked-actions">
           <button type="button" id="onboardConnectDrive">Conectar Google Drive</button>
           <button type="button" id="onboardContinueLocal" class="ghost">Usar solo este dispositivo</button>
@@ -359,10 +357,9 @@
       </div>
       <div class="card">
         <h3>Google Drive</h3>
-        <p class="card-subtitle">El correo solo identifica al tripulante. Drive requiere autorización con Google.</p>
+        <p class="card-subtitle">Drive requiere autorización con Google. El respaldo queda asociado a la cuenta que autorices.</p>
         <div id="driveStatus" class="notice soft">Google Drive sin conectar.</div>
         <div class="form-grid">
-          <label>Google Client ID<input id="googleClientId" placeholder="Se configura una vez antes de publicar" /></label>
           <label>Recordatorio de respaldo<select id="backupReminderDays"><option value="1">Cada 24 horas</option><option value="3">Cada 3 días</option><option value="5">Cada 5 días</option></select></label>
           <label class="checkbox-line"><input id="driveAutoSync" type="checkbox" /> Sincronizar automáticamente cuando sea posible</label>
         </div>
@@ -388,6 +385,6 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>if(!window.PDFLib){document.write('<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"><\/script>')}</script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="app.js?v=47"></script>
+  <script src="app.js?v=48"></script>
 </body>
 </html>

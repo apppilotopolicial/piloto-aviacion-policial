@@ -1,23 +1,14 @@
-CONFIGURAR GOOGLE DRIVE - TRIPULANTE AVIACIÓN POLICIAL
+GOOGLE DRIVE CONFIGURADO - TRIPULANTE AVIACIÓN POLICIAL
 
-IMPORTANTE:
-Escribir el correo Gmail dentro del perfil NO conecta Google Drive.
-Para que Drive funcione se necesita un Google OAuth Client ID y luego el piloto debe tocar "Conectar Google Drive" y autorizar la cuenta.
+El ID de cliente OAuth 2.0 ya quedó integrado en esta versión:
+409903213014-hi9t7n1h67gno0egn7ak5h4ms5fo9ml3.apps.googleusercontent.com
 
-PASOS TÉCNICOS:
-1. Entrar a Google Cloud Console.
-2. Crear o seleccionar un proyecto.
-3. Activar Google Drive API.
-4. Configurar pantalla de consentimiento OAuth.
-5. Crear credenciales: OAuth Client ID, tipo Web application.
-6. En Authorized JavaScript origins agregar:
-   https://apppilotopolicial.github.io
-7. Copiar el Client ID generado.
-8. En la app, durante la creación del perfil o en Configuración > Google Drive, pegar ese Client ID.
-9. Tocar Conectar Google Drive.
-10. Autorizar la cuenta Google.
+No se debe pedir a cada piloto este ID. Cada piloto solo debe tocar "Conectar Google Drive" dentro de la app y autorizar su propia cuenta Google.
 
-ALCANCE USADO POR LA APP:
-https://www.googleapis.com/auth/drive.appdata
-
-Ese alcance permite guardar un archivo privado de respaldo en la carpeta de datos de la app. No es para leer todo el Drive del piloto.
+Importante:
+- Este ID no es una contraseña.
+- No publicar ni compartir client secret, claves privadas ni contraseñas.
+- En Google Cloud debe estar autorizado el origen: https://apppilotopolicial.github.io
+- En Google Cloud debe estar autorizado el redirect: https://apppilotopolicial.github.io/piloto-aviacion-policial/
+- La API Google Drive debe estar habilitada.
+- Durante pruebas, el Gmail del piloto debe estar agregado como usuario de prueba en Google Cloud.

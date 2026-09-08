@@ -50,10 +50,10 @@ const AIRCRAFTS = [
 const STORAGE_KEY = 'cpc_flights_v1';
 const PROFILE_KEY = 'cpc_profile_v1';
 const HISTORICAL_HOURS_KEY = 'cpc_historical_hours_v1';
-const APP_VERSION = 'v4.7';
+const APP_VERSION = 'v4.8';
 const DRIVE_SETTINGS_KEY = 'pap_drive_settings_v1';
 const LOCAL_BACKUP_KEY = 'pap_local_backup_v1';
-const GOOGLE_DRIVE_CLIENT_ID = ''; // Configurar aquí antes de publicar en GitHub Pages. También se puede ingresar desde Configuración.
+const GOOGLE_DRIVE_CLIENT_ID = '409903213014-hi9t7n1h67gno0egn7ak5h4ms5fo9ml3.apps.googleusercontent.com'; // ID OAuth público de la app para Google Drive.
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.email';
 const DRIVE_BACKUP_FILE_NAME = 'piloto_aviacion_policial_backup.json';
 const LICENSE_SETTINGS_KEY = 'pap_license_settings_v1';
@@ -478,7 +478,11 @@ function initOnboardingControls(){
     showOnboardingStep('drive');
   });
   bind('onboardConnectDrive', async () => {
-    try { await connectDrive(); showOnboardingStep('aircraft'); }
+    try {
+      await connectDrive();
+      setDriveSettings({pendingBackup:true, dataChangedAt:new Date().toISOString()});
+      showOnboardingStep('aircraft');
+    }
     catch(e) { alert('No fue posible conectar Google Drive: ' + (e && e.message ? e.message : e)); }
   });
   bind('onboardContinueLocal', () => {
@@ -1457,10 +1461,11 @@ function renderDriveStatus(message){
   const s = getDriveSettings();
   const clientOk = !!getConfiguredGoogleClientId();
   const lastDrive = s.lastDriveBackupAt ? new Date(s.lastDriveBackupAt).toLocaleString() : 'Sin respaldo en Drive';
-  const tokenStatus = driveAccessToken ? 'Drive conectado' : 'Drive no conectado';
+  const tokenStatus = driveAccessToken ? 'Drive conectado y autorizado' : 'Drive no conectado';
+  const setupStatus = clientOk ? 'Conexión Google preparada.' : '<b>Falta configurar el acceso de Google Drive.</b>';
   const warning = location.protocol === 'file:' ? '<br><b>Nota:</b> Google Drive no funcionará abierto como archivo local. Debe publicarse en HTTPS, por ejemplo GitHub Pages.' : '';
   el.classList.remove('hidden');
-  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}${clientOk ? 'Client ID configurado.' : '<b>Falta configurar el Google OAuth Client ID.</b>'}<br>${tokenStatus}.<br>Última sincronización: ${escapeHtml(lastDrive)}.${warning}`;
+  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}${setupStatus}<br>${tokenStatus}.<br>Última sincronización: ${escapeHtml(lastDrive)}.${warning}`;
 }
 function daysSince(dateIso){
   if (!dateIso) return Infinity;
@@ -1494,7 +1499,7 @@ function renderBackupReminder(){
 }
 async function requestDriveToken(interactive=true){
   const clientId = getConfiguredGoogleClientId();
-  if (!clientId) throw new Error('Falta configurar el Google Client ID. Es obligatorio para abrir la autorización real de Google Drive; escribir el correo Gmail no conecta Drive.');
+  if (!clientId) throw new Error('Falta configurar el acceso de Google Drive en la app. Escribir el correo Gmail no conecta Drive.');
   if (!window.google || !google.accounts || !google.accounts.oauth2) throw new Error('No cargó Google Identity Services. Verifique conexión a internet y que la app esté publicada en HTTPS.');
   return await new Promise((resolve, reject) => {
     const tokenClient = google.accounts.oauth2.initTokenClient({
