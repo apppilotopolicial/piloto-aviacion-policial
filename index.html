@@ -318,64 +318,107 @@
       <div id="wbResult" class="card result-card"></div>
     </section>
 
-    <section id="settings" class="screen">
-      <div class="screen-title"><button class="back" data-go="home">←</button><div><span class="screen-kicker">Ajustes</span><h2>Configuración</h2></div></div>
-      <div class="card">
-        <h3>Mi perfil</h3>
+    <section id="settings" class="screen settings-clean">
+      <div class="screen-title">
+        <button class="back" data-go="home">←</button>
+        <div><span class="screen-kicker">Ajustes</span><h2>Configuración</h2></div>
+        <span id="settingsRoleBadge" class="role-badge">Modo usuario</span>
+      </div>
+
+      <div class="card settings-card">
+        <h3>Perfil del tripulante</h3>
+        <p class="card-subtitle">Información básica para identificar tus vuelos y respaldos.</p>
         <div class="form-grid">
-          <label>Nombre<input id="profileName" placeholder="Nombre" /></label>
-          <label>Grado<input id="profileRank" placeholder="Grado" /></label>
+          <label>Grado<input id="profileRank" placeholder="Ej: MY" /></label>
+          <label>Nombre<input id="profileName" placeholder="Nombres y apellidos" /></label>
+          <label>Correo Gmail<input id="profileEmail" type="email" placeholder="correo@gmail.com" /></label>
           <label>Licencia<input id="profileLicense" placeholder="Licencia" /></label>
-          <label>Unidad<input id="profileUnit" placeholder="Unidad" /></label>
-          <label>Correo Google de respaldo<input id="profileEmail" type="email" placeholder="correo@gmail.com" /></label>
-          <label>Aeronave actual<select id="profileCurrentAircraft"></select></label>
-          <label>Autonomía actual<input id="profileEnduranceHours" type="number" step="0.1" min="0" placeholder="Ej: 6.5" /></label>
+          <label>Unidad<input id="profileUnit" placeholder="Unidad o base" /></label>
         </div>
         <div class="form-actions"><button id="saveProfile">Guardar perfil</button></div>
       </div>
-      <div class="card">
-        <h3>Datos almacenados</h3>
-        <p class="card-subtitle">Respaldo local manual para guardar en Archivos, iCloud, OneDrive o correo.</p>
-        <button id="exportData" class="ghost">Exportar respaldo JSON</button>
-        <label>Importar respaldo JSON<input id="importDataFile" type="file" accept="application/json,.json" /></label>
-        <button id="deleteAll" class="danger">Borrar todos los vuelos guardados</button>
-        <button id="resetAppSetup" class="danger">Reiniciar app desde cero</button>
+
+      <div class="card settings-card">
+        <h3>Google Drive</h3>
+        <p class="card-subtitle">Respaldo seguro para recuperar tu información en otro teléfono.</p>
+        <div id="driveStatus" class="notice soft">Google Drive sin conectar.</div>
+        <div class="form-grid compact-form">
+          <label>Recordatorio<select id="backupReminderDays"><option value="1">Cada 24 horas</option><option value="3">Cada 3 días</option><option value="5">Cada 5 días</option></select></label>
+          <label class="checkbox-line"><input id="driveAutoSync" type="checkbox" /> Sincronizar cuando sea posible</label>
+        </div>
+        <div class="form-actions clean-actions">
+          <button id="driveBackupNow" type="button">Sincronizar ahora</button>
+          <button id="connectDrive" type="button" class="ghost">Conectar Google Drive</button>
+          <button id="driveRestoreNow" type="button" class="ghost">Restaurar respaldo</button>
+          <button id="saveDriveSettings" class="ghost subtle-action">Guardar ajustes</button>
+        </div>
       </div>
-      <div class="card">
-        <h3>Control de acceso por licencia</h3>
-        <p class="card-subtitle">El enlace de la app puede circular, pero el uso operativo se valida con el correo Google autorizado en la lista privada de licencias.</p>
+
+      <div class="card settings-card">
+        <h3>Aeronave y operación</h3>
+        <p class="card-subtitle">Selecciona la aeronave que estás usando actualmente. Esto no bloquea el registro de otras aeronaves.</p>
+        <div class="form-grid">
+          <label>Aeronave actual<select id="profileCurrentAircraft"></select></label>
+          <label>Autonomía actual<input id="profileEnduranceHours" type="number" step="0.1" min="0" placeholder="Ej: 6.5" /></label>
+        </div>
+        <div class="compact-aircraft-summary">
+          <strong>Aeronaves habilitadas</strong>
+          <div id="aircraftList"></div>
+        </div>
+      </div>
+
+      <div class="card settings-card admin-only">
+        <div class="admin-heading"><div><h3>Parámetros de aeronave</h3><p class="card-subtitle">Solo modo administrador. Cambios técnicos que afectan Peso y Balance.</p></div><span>ADMIN</span></div>
+        <div class="warning compact-warning">Modifica estos datos únicamente con información técnica actualizada de la aeronave.</div>
+        <div class="form-grid">
+          <label>Aeronave<select id="adminAircraftSelect"></select></label>
+          <label>Peso básico<input id="acBasicWeight" type="number" step="0.1" /></label>
+          <label>Momento básico / 1000<input id="acBasicMoment1000" type="number" step="0.1" /></label>
+          <label>Brazo combustible<input id="acFuelArm" type="number" step="0.01" /></label>
+          <label>Límite Ramp<input id="acRampLimit" type="number" step="0.1" /></label>
+          <label>Límite Takeoff<input id="acTakeoffLimit" type="number" step="0.1" /></label>
+          <label>Límite Landing<input id="acLandingLimit" type="number" step="0.1" /></label>
+          <label>CG máximo aft<input id="acCgAft" type="number" step="0.1" /></label>
+        </div>
+        <label>Observación del cambio<input id="acParamNote" placeholder="Ej: Actualización según formato técnico" /></label>
+        <div class="form-actions clean-actions">
+          <button id="saveAircraftParams" type="button">Guardar parámetros</button>
+          <button id="restoreAircraftParams" type="button" class="ghost">Restaurar originales</button>
+        </div>
+        <div id="aircraftParamHistory" class="param-history muted"></div>
+      </div>
+
+      <div class="card settings-card admin-only">
+        <div class="admin-heading"><div><h3>Control de acceso por licencia</h3><p class="card-subtitle">Solo modo administrador. No visible para pilotos.</p></div><span>ADMIN</span></div>
         <div id="licenseStatus" class="notice soft">Control de licencias pendiente de configurar.</div>
         <div class="form-grid">
           <label>URL de verificación de licencias<input id="licenseCheckUrl" placeholder="URL del Web App de Google Apps Script" /></label>
           <label class="checkbox-line"><input id="licenseCheckEnabled" type="checkbox" /> Bloquear app si el correo no tiene licencia activa</label>
         </div>
-        <div class="form-actions">
-          <button id="saveLicenseSettings" class="ghost">Guardar configuración de licencia</button>
+        <div class="form-actions clean-actions">
+          <button id="saveLicenseSettings" class="ghost">Guardar licencia</button>
           <button id="checkLicenseNow" type="button">Verificar licencia actual</button>
         </div>
-        <p class="muted">Para no pagar pasarela, el administrador activa manualmente el Gmail del piloto en una hoja privada de Google Sheets. La app consulta esa lista al iniciar.</p>
       </div>
-      <div class="card">
-        <h3>Google Drive</h3>
-        <p class="card-subtitle">Drive requiere autorización con Google. El respaldo queda asociado a la cuenta que autorices.</p>
-        <div id="driveStatus" class="notice soft">Google Drive sin conectar.</div>
-        <div class="form-grid">
-          <label>Recordatorio de respaldo<select id="backupReminderDays"><option value="1">Cada 24 horas</option><option value="3">Cada 3 días</option><option value="5">Cada 5 días</option></select></label>
-          <label class="checkbox-line"><input id="driveAutoSync" type="checkbox" /> Sincronizar automáticamente cuando sea posible</label>
+
+      <div class="card settings-card">
+        <h3>Gestión de datos</h3>
+        <p class="card-subtitle">Copia manual para guardar en Archivos, iCloud, OneDrive o correo.</p>
+        <div class="form-actions clean-actions">
+          <button id="exportData" class="ghost">Exportar copia de seguridad</button>
+          <label class="file-pill">Restaurar copia local<input id="importDataFile" type="file" accept="application/json,.json" /></label>
         </div>
-        <div class="form-actions">
-          <button id="saveDriveSettings" class="ghost">Guardar configuración</button>
-          <button id="connectDrive" type="button">Conectar Google Drive</button>
-          <button id="driveBackupNow" type="button" class="ghost">Guardar respaldo en Drive</button>
-          <button id="driveRestoreNow" type="button" class="ghost">Restaurar desde Drive</button>
+        <div class="admin-only danger-admin-zone">
+          <h4>Zona de seguridad</h4>
+          <p class="muted">Acciones delicadas solo para administración.</p>
+          <div class="form-actions clean-actions">
+            <button id="deleteAll" class="danger">Borrar vuelos guardados</button>
+            <button id="resetAppSetup" class="danger">Reiniciar app desde cero</button>
+          </div>
         </div>
-        <p class="muted">El respaldo queda asociado a la cuenta Google autorizada. Para recuperar en otro teléfono, usa Restaurar perfil con esa misma cuenta.</p>
-      </div>
-      <div class="card">
-        <h3>Aeronaves disponibles</h3>
-        <div id="aircraftList"></div>
       </div>
     </section>
+
   </main>
 
   <template id="statCard">
@@ -385,6 +428,6 @@
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
   <script>if(!window.PDFLib){document.write('<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"><\/script>')}</script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="app.js?v=48"></script>
+  <script src="app.js?v=50"></script>
 </body>
 </html>

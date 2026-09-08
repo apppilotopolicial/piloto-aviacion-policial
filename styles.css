@@ -84,3 +84,31 @@ button:active,.button-like:active{transform:scale(.985)}
 .clean-stat:nth-child(3) span{margin:0}.clean-stat:nth-child(3) strong{font-size:24px}
 @media(max-width:650px){.clean-stats{grid-template-columns:1fr 1fr}.home-hero-card{min-height:300px}.module-grid-pro{gap:10px}.module-card-pro{min-height:102px;padding:14px}.profile-overview-card{grid-template-columns:auto 1fr;}.drive-status-mini{grid-column:1/-1;text-align:left;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px}.form-actions button{flex:1 1 100%}}
 @media(max-width:390px){.clean-stats{grid-template-columns:1fr 1fr}.module-grid-pro{grid-template-columns:1fr 1fr}.module-card-pro.wide{grid-column:1/-1}.module-card-pro strong{font-size:14px}.module-card-pro small{font-size:11px}.module-icon-pro{width:38px;height:38px;flex-basis:38px}.brand h1{font-size:18px}.home-hero-card{min-height:286px}}
+
+/* v5.0 Configuración por rol */
+.settings-clean .screen-title{align-items:center}
+.role-badge{margin-left:auto;border:1px solid var(--line);border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.78);white-space:nowrap}
+.role-badge.admin{color:#7a590b;background:#fff7e7;border-color:rgba(200,138,23,.35)}
+.admin-only{display:none!important}
+body.admin-mode .admin-only{display:block!important}
+body.admin-mode .form-actions.admin-only{display:flex!important}
+.settings-card{padding:20px;border-radius:28px;margin-bottom:16px}
+.settings-card h3{font-size:20px;letter-spacing:-.025em;margin-bottom:5px}
+.settings-card .card-subtitle{font-size:14px;line-height:1.35;margin-bottom:14px}
+.compact-form{grid-template-columns:1fr 1fr}
+.clean-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.clean-actions button,.file-pill{flex:1 1 150px;min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center}
+.subtle-action{opacity:.74}
+.compact-aircraft-summary{margin-top:14px;padding:13px 14px;border:1px solid var(--line);border-radius:18px;background:#f7fbfe}
+.compact-aircraft-summary strong{display:block;margin-bottom:8px;color:var(--primary);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.compact-aircraft-summary p{margin:6px 0;font-size:13px;color:var(--muted)}
+.admin-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.admin-heading span{border-radius:999px;padding:6px 9px;background:#fff7e7;color:#9a6d08;font-size:10px;font-weight:950;letter-spacing:.12em;border:1px solid rgba(200,138,23,.25)}
+.compact-warning{font-size:13px;line-height:1.35;padding:11px 12px;margin:10px 0 14px}
+.param-history{margin-top:12px;font-size:12px;line-height:1.35;background:#f7fbfe;border:1px solid var(--line);border-radius:16px;padding:12px}
+.param-history p{margin:7px 0 0}.danger-admin-zone{margin-top:18px;padding-top:16px;border-top:1px dashed rgba(184,57,57,.28)}
+.danger-admin-zone h4{margin:0 0 4px;color:#962d2d}
+.file-pill{border:1px solid var(--line);background:#fff;border-radius:18px;font-weight:900;color:var(--primary);cursor:pointer;position:relative;overflow:hidden;padding:0 14px}
+.file-pill input{position:absolute;inset:0;opacity:0;cursor:pointer}
+#driveStatus{font-size:14px;line-height:1.45}.notice.soft b{color:var(--primary)}
+@media(max-width:650px){.settings-clean .screen-title{gap:8px}.role-badge{font-size:9px;padding:7px 9px}.compact-form{grid-template-columns:1fr}.settings-card{padding:18px;border-radius:24px}.clean-actions button,.file-pill{flex-basis:100%}}

@@ -50,7 +50,7 @@ const AIRCRAFTS = [
 const STORAGE_KEY = 'cpc_flights_v1';
 const PROFILE_KEY = 'cpc_profile_v1';
 const HISTORICAL_HOURS_KEY = 'cpc_historical_hours_v1';
-const APP_VERSION = 'v4.8';
+const APP_VERSION = 'v5.0';
 const DRIVE_SETTINGS_KEY = 'pap_drive_settings_v1';
 const LOCAL_BACKUP_KEY = 'pap_local_backup_v1';
 const GOOGLE_DRIVE_CLIENT_ID = '409903213014-hi9t7n1h67gno0egn7ak5h4ms5fo9ml3.apps.googleusercontent.com'; // ID OAuth público de la app para Google Drive.
@@ -60,6 +60,8 @@ const LICENSE_SETTINGS_KEY = 'pap_license_settings_v1';
 const LICENSE_CHECK_URL = ''; // Pegar aquí la URL del Web App de Google Apps Script para validar correos autorizados.
 const ONBOARDING_KEY = 'pap_onboarding_complete_v1';
 const AIRCRAFT_CONFIG_KEY = 'pap_aircraft_config_v1';
+const AIRCRAFT_PARAMETERS_KEY = 'pap_aircraft_parameters_v1';
+const ADMIN_EMAILS = ['apppilotopolicial@gmail.com','alfo.022@gmail.com'];
 const PDF_TEMPLATE_BASE64 = '';
 function base64ToArrayBuffer(base64) {
   const binaryString = atob(base64);
@@ -94,6 +96,39 @@ const getAircraftConfig = () => {
   try { return {...defaults, ...JSON.parse(localStorage.getItem(AIRCRAFT_CONFIG_KEY) || '{}')}; } catch(e) { return defaults; }
 };
 const setAircraftConfig = (cfg) => localStorage.setItem(AIRCRAFT_CONFIG_KEY, JSON.stringify({...getAircraftConfig(), ...cfg}));
+function getAircraftParameterOverrides(){
+  try { return JSON.parse(localStorage.getItem(AIRCRAFT_PARAMETERS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function setAircraftParameterOverrides(value){
+  localStorage.setItem(AIRCRAFT_PARAMETERS_KEY, JSON.stringify(value || {}));
+}
+function applyAircraftOverride(base){
+  if (!base) return AIRCRAFTS[0];
+  const overrides = getAircraftParameterOverrides();
+  const ov = overrides[base.registration] || {};
+  const merged = {...base, ...ov};
+  merged.limits = {...(base.limits || {}), ...(ov.limits || {})};
+  merged.stations = Array.isArray(ov.stations) ? ov.stations : base.stations;
+  return merged;
+}
+function getProfile(){
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function normalizeEmail(value){ return String(value || '').trim().toLowerCase(); }
+function isAdminProfile(){
+  const email = normalizeEmail((document.getElementById('profileEmail') && document.getElementById('profileEmail').value) || getProfile().email);
+  return ADMIN_EMAILS.includes(email);
+}
+function applyRoleMode(){
+  const admin = isAdminProfile();
+  document.body.classList.toggle('admin-mode', admin);
+  const badge = document.getElementById('settingsRoleBadge');
+  if (badge) {
+    badge.textContent = admin ? 'Modo administrador' : 'Modo usuario';
+    badge.classList.toggle('admin', admin);
+  }
+  return admin;
+}
 function hasOnboardingComplete(){ return localStorage.getItem(ONBOARDING_KEY) === 'yes'; }
 function clearPapLocalData(){
   const prefixes = ['cpc_', 'pap_'];
@@ -137,6 +172,7 @@ function getBackupPayload(){
     exportedAt:new Date().toISOString(),
     profile:JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}'),
     aircraftConfig:getAircraftConfig(),
+    aircraftParameterOverrides:getAircraftParameterOverrides(),
     onboardingComplete:hasOnboardingComplete(),
     historicalHours:getHistoricalHours(),
     flights:getFlights(),
@@ -153,6 +189,7 @@ function applyBackupPayload(data){
   setHistoricalHours(historicalHours);
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
   if (data.aircraftConfig && typeof data.aircraftConfig === 'object') setAircraftConfig(data.aircraftConfig);
+  if (data.aircraftParameterOverrides && typeof data.aircraftParameterOverrides === 'object') setAircraftParameterOverrides(data.aircraftParameterOverrides);
   if (data.onboardingComplete !== false) localStorage.setItem(ONBOARDING_KEY, 'yes');
   loadProfile();
   fillSelects();
@@ -167,7 +204,7 @@ function markDataChanged(){
   renderBackupReminder();
 }
 
-const aircraftByReg = (reg) => AIRCRAFTS.find(a => a.registration === reg) || AIRCRAFTS[0];
+const aircraftByReg = (reg) => applyAircraftOverride(AIRCRAFTS.find(a => a.registration === reg) || AIRCRAFTS[0]);
 const positionNameByCode = (code) => (POSITIONS.find(p => p.code === code) || HISTORICAL_POSITIONS.find(p => p.code === code) || {name: code || 'Sin posición'}).name;
 const HISTORICAL_POSITIONS = [
   { code: 'AL', name: 'Alumno / entrenamiento inicial' },
@@ -362,6 +399,7 @@ function init() {
   renderWBStations();
   renderInitialHoursList();
   loadProfile();
+  applyRoleMode();
   updateAircraftType();
   initDriveControls();
   initLicenseControls();
@@ -384,7 +422,7 @@ function show(id) {
   if (id === 'home') { renderHomeDashboard(); renderBackupReminder(); }
   if (id === 'fatigue') renderFatigue();
   if (id === 'hoursReport') { renderInitialHoursList(); renderReportResult(null); }
-  if (id === 'settings') { loadDriveSettingsForm(); renderDriveStatus(); loadLicenseSettingsForm(); renderLicenseStatus(); }
+  if (id === 'settings') { loadDriveSettingsForm(); renderDriveStatus(); applyRoleMode(); loadLicenseSettingsForm(); renderLicenseStatus(); renderAdminAircraftParams(); }
 }
 
 function fillSelects() {
@@ -426,7 +464,11 @@ function bindForms(){
   if (document.getElementById('checkLicenseNow')) document.getElementById('checkLicenseNow').addEventListener('click', () => checkLicenseAccess({interactive:true, silent:false}));
   if (document.getElementById('accessCheckLicense')) document.getElementById('accessCheckLicense').addEventListener('click', () => checkLicenseAccess({interactive:true, silent:false}));
   if (document.getElementById('accessConnectDrive')) document.getElementById('accessConnectDrive').addEventListener('click', async () => { try { await connectDrive(); await checkLicenseAccess({interactive:false, silent:false}); } catch(e) { alert('No se pudo conectar Google Drive: ' + (e && e.message ? e.message : e)); } });
+  if (document.getElementById('adminAircraftSelect')) document.getElementById('adminAircraftSelect').addEventListener('change', renderAdminAircraftParams);
+  if (document.getElementById('saveAircraftParams')) document.getElementById('saveAircraftParams').addEventListener('click', saveAircraftParams);
+  if (document.getElementById('restoreAircraftParams')) document.getElementById('restoreAircraftParams').addEventListener('click', restoreAircraftParams);
 }
+
 
 
 function weightBalanceAvailable(){
@@ -1290,6 +1332,8 @@ function saveProfile(){
   localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
   markDataChanged();
   queueDriveAutoBackup('perfil');
+  applyRoleMode();
+  renderAdminAircraftParams();
   renderHomeDashboard();
   alert('Perfil guardado.');
 }
@@ -1301,9 +1345,16 @@ function loadProfile(){
   const currentEl = document.getElementById('profileCurrentAircraft');
   if (currentEl && currentEl.options.length) currentEl.value = cfg.currentRegistration || cfg.mainRegistration || 'PNC3018';
   if (document.getElementById('profileEnduranceHours')) document.getElementById('profileEnduranceHours').value = cfg.enduranceHours || '';
+  applyRoleMode();
 }
+
 function renderAircraftList(){
-  aircraftList.innerHTML = AIRCRAFTS.map(a => `<p><span class="pill">${a.registration}</span> ${a.type} · ${a.model} · Ramp ${a.limits.ramp} lb</p>`).join('');
+  const aircraftList = document.getElementById('aircraftList');
+  if (!aircraftList) return;
+  const cfg = getAircraftConfig();
+  const current = cfg.currentRegistration || cfg.mainRegistration || 'PNC3018';
+  const enabled = cfg.types && cfg.types.length ? cfg.types.join(', ') : 'Caravan';
+  aircraftList.innerHTML = `<p><span class="pill">${escapeHtml(current)}</span> Actual</p><p><span class="pill">${escapeHtml(enabled)}</span> Módulos habilitados</p>`;
 }
 function exportBackup(){
   const data = getBackupPayload();
@@ -1340,6 +1391,95 @@ function deleteAllFlights(){
   }
 }
 
+function getOriginalAircraft(reg){
+  return AIRCRAFTS.find(a => a.registration === reg) || AIRCRAFTS[0];
+}
+function populateAdminAircraftSelect(){
+  const el = document.getElementById('adminAircraftSelect');
+  if (!el) return;
+  const current = el.value;
+  el.innerHTML = AIRCRAFTS.map(a => `<option value="${a.registration}">${a.registration} - ${a.model}</option>`).join('');
+  if (current && [...el.options].some(o => o.value === current)) el.value = current;
+}
+function renderAdminAircraftParams(){
+  if (!isAdminProfile()) return;
+  populateAdminAircraftSelect();
+  const select = document.getElementById('adminAircraftSelect');
+  if (!select) return;
+  const reg = select.value || 'PNC3018';
+  const a = aircraftByReg(reg);
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value ?? ''; };
+  set('acBasicWeight', a.basicWeight);
+  set('acBasicMoment1000', a.basicMoment1000);
+  set('acFuelArm', a.fuelArm);
+  set('acRampLimit', a.limits && a.limits.ramp);
+  set('acTakeoffLimit', a.limits && a.limits.takeoff);
+  set('acLandingLimit', a.limits && a.limits.landing);
+  set('acCgAft', a.limits && a.limits.cgAft);
+  const note = document.getElementById('acParamNote'); if (note) note.value = '';
+  renderAircraftParamHistory();
+}
+function readNumberInput(id){
+  const el = document.getElementById(id);
+  const n = el ? Number(el.value) : NaN;
+  return Number.isFinite(n) ? n : null;
+}
+function saveAircraftParams(){
+  if (!isAdminProfile()) { alert('Esta función es solo para modo administrador.'); return; }
+  const select = document.getElementById('adminAircraftSelect');
+  const reg = select ? select.value : '';
+  if (!reg) return;
+  const original = getOriginalAircraft(reg);
+  const current = aircraftByReg(reg);
+  const next = {
+    basicWeight: readNumberInput('acBasicWeight') ?? original.basicWeight,
+    basicMoment1000: readNumberInput('acBasicMoment1000') ?? original.basicMoment1000,
+    fuelArm: readNumberInput('acFuelArm') ?? original.fuelArm,
+    limits: {
+      ramp: readNumberInput('acRampLimit') ?? original.limits.ramp,
+      takeoff: readNumberInput('acTakeoffLimit') ?? original.limits.takeoff,
+      landing: readNumberInput('acLandingLimit') ?? original.limits.landing,
+      cgAft: readNumberInput('acCgAft') ?? original.limits.cgAft
+    }
+  };
+  const note = (document.getElementById('acParamNote') && document.getElementById('acParamNote').value.trim()) || '';
+  const ok = confirm('Estos cambios afectan los cálculos de Peso y Balance de la aeronave ' + reg + '. ¿Confirmas que los datos fueron revisados técnicamente?');
+  if (!ok) return;
+  const overrides = getAircraftParameterOverrides();
+  const history = Array.isArray(overrides.__history) ? overrides.__history : [];
+  history.unshift({at:new Date().toISOString(), reg, note, previous:{basicWeight:current.basicWeight,basicMoment1000:current.basicMoment1000,fuelArm:current.fuelArm,limits:current.limits}, next});
+  overrides[reg] = next;
+  overrides.__history = history.slice(0,20);
+  setAircraftParameterOverrides(overrides);
+  markDataChanged();
+  renderAircraftList();
+  renderAdminAircraftParams();
+  alert('Parámetros guardados para ' + reg + '.');
+}
+function restoreAircraftParams(){
+  if (!isAdminProfile()) { alert('Esta función es solo para modo administrador.'); return; }
+  const select = document.getElementById('adminAircraftSelect');
+  const reg = select ? select.value : '';
+  if (!reg) return;
+  if (!confirm('¿Restaurar los parámetros originales de ' + reg + '?')) return;
+  const overrides = getAircraftParameterOverrides();
+  delete overrides[reg];
+  const history = Array.isArray(overrides.__history) ? overrides.__history : [];
+  history.unshift({at:new Date().toISOString(), reg, note:'Restauración de parámetros originales'});
+  overrides.__history = history.slice(0,20);
+  setAircraftParameterOverrides(overrides);
+  markDataChanged();
+  renderAdminAircraftParams();
+  alert('Parámetros originales restaurados para ' + reg + '.');
+}
+function renderAircraftParamHistory(){
+  const el = document.getElementById('aircraftParamHistory');
+  if (!el) return;
+  const history = getAircraftParameterOverrides().__history || [];
+  if (!history.length) { el.innerHTML = 'Sin modificaciones registradas.'; return; }
+  el.innerHTML = '<b>Últimos cambios</b>' + history.slice(0,5).map(h => `<p>${escapeHtml(new Date(h.at).toLocaleString())} · ${escapeHtml(h.reg || '')}${h.note ? ' · ' + escapeHtml(h.note) : ''}</p>`).join('');
+}
+
 let driveAccessToken = '';
 let driveBackupRunning = false;
 
@@ -1355,11 +1495,13 @@ function initLicenseControls(){
   renderAccessStatus();
 }
 function loadLicenseSettingsForm(){
+  if (!isAdminProfile()) return;
   const s = getLicenseSettings();
   if (document.getElementById('licenseCheckUrl')) document.getElementById('licenseCheckUrl').value = LICENSE_CHECK_URL || s.checkUrl || '';
   if (document.getElementById('licenseCheckEnabled')) document.getElementById('licenseCheckEnabled').checked = !!s.enabled;
 }
 function saveLicenseSettingsForm(){
+  if (!isAdminProfile()) { alert('Esta función es solo para modo administrador.'); return; }
   const checkUrl = document.getElementById('licenseCheckUrl') ? document.getElementById('licenseCheckUrl').value.trim() : '';
   const enabled = document.getElementById('licenseCheckEnabled') ? document.getElementById('licenseCheckEnabled').checked : false;
   if (!LICENSE_CHECK_URL) setLicenseSettings({checkUrl, enabled});
@@ -1370,6 +1512,7 @@ function saveLicenseSettingsForm(){
 function renderLicenseStatus(message){
   const el = document.getElementById('licenseStatus');
   if (!el) return;
+  if (!isAdminProfile()) { el.innerHTML = ''; return; }
   const s = getLicenseSettings();
   const urlOk = !!getConfiguredLicenseUrl();
   const active = licenseIsActive();
@@ -1452,7 +1595,7 @@ function saveDriveSettingsForm(){
   const autoSync = document.getElementById('driveAutoSync') ? document.getElementById('driveAutoSync').checked : true;
   if (!GOOGLE_DRIVE_CLIENT_ID) setDriveSettings({clientId, reminderDays, autoSync});
   else setDriveSettings({reminderDays, autoSync});
-  renderDriveStatus('Configuración guardada. Para conectar Drive toca Conectar Google Drive y autoriza la cuenta.');
+  renderDriveStatus('Ajustes de respaldo guardados.');
   renderBackupReminder();
 }
 function renderDriveStatus(message){
@@ -1460,12 +1603,18 @@ function renderDriveStatus(message){
   if (!el) return;
   const s = getDriveSettings();
   const clientOk = !!getConfiguredGoogleClientId();
-  const lastDrive = s.lastDriveBackupAt ? new Date(s.lastDriveBackupAt).toLocaleString() : 'Sin respaldo en Drive';
-  const tokenStatus = driveAccessToken ? 'Drive conectado y autorizado' : 'Drive no conectado';
-  const setupStatus = clientOk ? 'Conexión Google preparada.' : '<b>Falta configurar el acceso de Google Drive.</b>';
-  const warning = location.protocol === 'file:' ? '<br><b>Nota:</b> Google Drive no funcionará abierto como archivo local. Debe publicarse en HTTPS, por ejemplo GitHub Pages.' : '';
+  const lastDrive = s.lastDriveBackupAt ? new Date(s.lastDriveBackupAt).toLocaleString() : 'Sin copia en Drive';
+  const connected = !!driveAccessToken || !!s.lastDriveBackupAt;
+  const stateText = driveAccessToken ? 'Google Drive conectado' : (connected ? 'Google Drive configurado' : 'Google Drive no conectado');
+  const warning = location.protocol === 'file:' ? '<br><b>Nota:</b> Google Drive funciona desde HTTPS, por ejemplo GitHub Pages.' : '';
+  const backupBtn = document.getElementById('driveBackupNow');
+  const connectBtn = document.getElementById('connectDrive');
+  const restoreBtn = document.getElementById('driveRestoreNow');
+  if (backupBtn) backupBtn.textContent = 'Sincronizar ahora';
+  if (connectBtn) connectBtn.textContent = connected ? 'Cambiar cuenta Google' : 'Conectar Google Drive';
+  if (restoreBtn) restoreBtn.textContent = 'Restaurar respaldo';
   el.classList.remove('hidden');
-  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}${setupStatus}<br>${tokenStatus}.<br>Última sincronización: ${escapeHtml(lastDrive)}.${warning}`;
+  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}<b>${escapeHtml(stateText)}</b><br>Última copia: ${escapeHtml(lastDrive)}.${clientOk ? '' : '<br><b>Falta configurar Google Drive.</b>'}${warning}`;
 }
 function daysSince(dateIso){
   if (!dateIso) return Infinity;
@@ -1489,7 +1638,7 @@ function renderBackupReminder(){
   const last = s.lastDriveBackupAt || s.lastLocalBackupAt;
   const age = last ? `${Math.floor(daysSince(last))} día(s)` : 'sin copia previa';
   el.classList.remove('hidden');
-  el.innerHTML = `<b>Respaldo pendiente</b><br><span>Última copia: ${escapeHtml(age)}.</span><div class="form-actions"><button type="button" id="reminderDriveBackup">Conectar / guardar Drive</button><button type="button" id="reminderLocalBackup" class="ghost">Exportar JSON</button><button type="button" id="reminderSnooze" class="ghost">Después</button></div>`;
+  el.innerHTML = `<b>Respaldo pendiente</b><br><span>Última copia: ${escapeHtml(age)}.</span><div class="form-actions"><button type="button" id="reminderDriveBackup">Sincronizar Drive</button><button type="button" id="reminderLocalBackup" class="ghost">Copia local</button><button type="button" id="reminderSnooze" class="ghost">Recordarme después</button></div>`;
   const driveBtn = document.getElementById('reminderDriveBackup');
   const localBtn = document.getElementById('reminderLocalBackup');
   const snoozeBtn = document.getElementById('reminderSnooze');
@@ -1518,7 +1667,7 @@ async function connectDrive(){
     saveDriveSettingsForm();
     await requestDriveToken(true);
     const file = await findDriveBackupFile();
-    renderDriveStatus(file ? `Google Drive conectado. Respaldo encontrado: ${file.modifiedTime || file.name}.` : 'Google Drive conectado. Aún no hay respaldo creado.');
+    renderDriveStatus(file ? `Google Drive conectado. Respaldo encontrado.` : 'Google Drive conectado. Aún no hay respaldo creado.');
     if (getConfiguredLicenseUrl()) await checkLicenseAccess({interactive:false, silent:true});
     return true;
   } catch(e) {
@@ -1540,11 +1689,45 @@ async function driveFetch(url, options={}){
   }
   return res;
 }
+async function readGoogleError(res){
+  let text = '';
+  try { text = await res.text(); } catch(_) {}
+  let detail = text;
+  try {
+    const json = JSON.parse(text);
+    const err = json.error || json;
+    const reason = err.errors && err.errors[0] && err.errors[0].reason ? err.errors[0].reason : '';
+    const msg = err.message || text;
+    detail = `${res.status} ${res.statusText || ''}${reason ? ' - ' + reason : ''}: ${msg}`.trim();
+  } catch(_) {
+    detail = `${res.status} ${res.statusText || ''}: ${text || 'sin detalle de Google'}`.trim();
+  }
+  return detail;
+}
+function explainDriveError(detail){
+  const d = String(detail || '').toLowerCase();
+  if (d.includes('accessnotconfigured') || d.includes('api has not been used') || d.includes('drive api has not been used') || d.includes('disabled')) {
+    return 'Google Drive API no está habilitada en el mismo proyecto donde creaste el ID de cliente, o todavía no terminó de propagarse. En Google Cloud abre APIs y servicios > Biblioteca > Google Drive API > Habilitar.';
+  }
+  if (d.includes('insufficient') || d.includes('insufficientpermissions') || d.includes('scope')) {
+    return 'El permiso drive.appdata no quedó autorizado. Revisa la pantalla de consentimiento OAuth, agrega el permiso https://www.googleapis.com/auth/drive.appdata y vuelve a conectar la cuenta.';
+  }
+  if (d.includes('access_denied') || d.includes('app is being tested') || d.includes('testing')) {
+    return 'El Gmail usado no está agregado como usuario de prueba en Google Cloud.';
+  }
+  if (d.includes('origin_mismatch') || d.includes('redirect_uri_mismatch')) {
+    return 'El origen o redireccionamiento no coincide. Debe estar https://apppilotopolicial.github.io como origen autorizado.';
+  }
+  return 'Google respondió con un error técnico. Copia este detalle para corregir la configuración exacta.';
+}
 async function findDriveBackupFile(){
   const q = encodeURIComponent(`name='${DRIVE_BACKUP_FILE_NAME}'`);
   const url = `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${q}&fields=files(id,name,modifiedTime,size)&pageSize=1`;
   const res = await driveFetch(url);
-  if (!res.ok) throw new Error('No se pudo consultar Google Drive.');
+  if (!res.ok) {
+    const detail = await readGoogleError(res);
+    throw new Error('No se pudo consultar Google Drive. ' + explainDriveError(detail) + ' Detalle: ' + detail);
+  }
   const data = await res.json();
   return data.files && data.files[0] ? data.files[0] : null;
 }
@@ -1566,12 +1749,15 @@ async function backupToDrive({silent=false}={}){
     const url = existing ? `https://www.googleapis.com/upload/drive/v3/files/${existing.id}?uploadType=multipart&fields=id,name,modifiedTime` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,modifiedTime';
     const method = existing ? 'PATCH' : 'POST';
     const res = await driveFetch(url, {method, headers:{'Content-Type':'multipart/related; boundary=' + mp.boundary}, body:mp.body});
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) {
+      const detail = await readGoogleError(res);
+      throw new Error(explainDriveError(detail) + ' Detalle: ' + detail);
+    }
     const info = await res.json();
     setDriveSettings({lastDriveBackupAt:new Date().toISOString(), pendingBackup:false});
     renderDriveStatus('Respaldo guardado en Google Drive.');
     renderBackupReminder();
-    if (!silent) alert('Respaldo guardado en Google Drive correctamente.');
+    if (!silent) alert('Copia guardada en Google Drive.');
     return info;
   } catch(e) {
     if (!silent) alert('No se pudo guardar en Google Drive: ' + (e && e.message ? e.message : e));
