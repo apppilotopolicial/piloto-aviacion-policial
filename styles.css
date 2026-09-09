@@ -67,7 +67,7 @@ label{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:13
 @media(max-width:390px){.clean-stats{grid-template-columns:1fr}.module-grid-pro{grid-template-columns:1fr}.module-card-pro.wide{grid-column:auto}.profile-overview-card{grid-template-columns:auto 1fr}.drive-status-mini{grid-column:1/-1;text-align:left;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px}.access-card,.onboarding-card{border-radius:28px;padding:18px}.access-card h2,.onboard-step h2{font-size:25px}.home-hero-copy h2{font-size:24px}}
 @media print{.app-header,.screen-title,.module-grid-pro,button,.warning,form,.back,.home-hero-card,.profile-overview-card,.clean-stats{display:none!important}body{background:#fff;color:#000}.card{box-shadow:none;border:1px solid #999;color:#000}.card p,.muted{color:#333}}
 
-/* Pulido v4.7: movimiento, orden móvil y fondo aeronáutico */
+/* Pulido v5.1: movimiento, orden móvil y fondo aeronáutico */
 @keyframes papFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes papSoftZoom{from{transform:scale(1)}to{transform:scale(1.045)}}
 .screen.active{animation:papFadeUp .36s ease both}
@@ -112,3 +112,183 @@ body.admin-mode .form-actions.admin-only{display:flex!important}
 .file-pill input{position:absolute;inset:0;opacity:0;cursor:pointer}
 #driveStatus{font-size:14px;line-height:1.45}.notice.soft b{color:var(--primary)}
 @media(max-width:650px){.settings-clean .screen-title{gap:8px}.role-badge{font-size:9px;padding:7px 9px}.compact-form{grid-template-columns:1fr}.settings-card{padding:18px;border-radius:24px}.clean-actions button,.file-pill{flex-basis:100%}}
+
+
+/* v5.1 Rediseño profesional tipo mockup aprobado */
+:root{
+  --bg:#edf5fb;
+  --text:#08233f;
+  --muted:#63768d;
+  --primary:#06294b;
+  --primary2:#0a69ad;
+  --accent:#c69a38;
+  --line:#dbe8f3;
+  --surface:#ffffff;
+  --softShadow:0 12px 30px rgba(7,42,77,.10);
+  --shadow:0 22px 56px rgba(7,42,77,.18);
+}
+html,body{max-width:100%;overflow-x:hidden;}
+body{
+  background:linear-gradient(180deg,#f8fbfe 0%,#edf5fb 45%,#f6f9fc 100%);
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  opacity:.38;
+  background:
+    linear-gradient(rgba(7,56,95,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(7,56,95,.025) 1px,transparent 1px);
+  background-size:34px 34px;
+}
+.app-header{display:none!important;}
+main{max-width:430px;padding:0 12px 104px;margin:0 auto;}
+.mobile-shell{max-width:430px;margin:0 auto;padding:12px 2px 20px;}
+.screen.active{animation:papFadeUp .32s cubic-bezier(.2,.8,.2,1) both;}
+button,.button-like{border-radius:18px;min-height:50px;font-weight:900;letter-spacing:-.01em;background:linear-gradient(135deg,#064271,#0780cb);box-shadow:0 14px 28px rgba(7,104,175,.20);}
+.ghost{background:#fff;color:var(--primary);border:1px solid rgba(8,35,63,.12);box-shadow:0 8px 18px rgba(7,42,77,.06);}
+.card{border-radius:24px;border:1px solid rgba(116,151,181,.22);box-shadow:var(--softShadow);}
+
+/* Bienvenida exacta estilo mockup */
+.onboarding-gate,.access-gate{padding:0;background:#061e36;align-items:stretch;justify-content:center;}
+.onboarding-card,.access-card{width:min(430px,100%);max-height:none;min-height:100vh;border:0;border-radius:0;background:#fff;box-shadow:none;padding:18px 20px;}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active){
+  display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;color:#fff;padding:28px 26px 38px;background:#061e36;
+}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active)::before{
+  content:"";position:absolute;inset:0;background:url('hero-photo.jpg') center/cover no-repeat;filter:saturate(1.08) contrast(1.02);animation:papSoftZoom 18s ease-in-out infinite alternate;
+}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active)::after{
+  content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,19,34,.10) 0%,rgba(3,19,34,.18) 35%,rgba(3,19,34,.66) 67%,rgba(3,19,34,.93) 100%);
+}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) .onboarding-top{display:none;}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) .onboard-step{position:relative;z-index:2;}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) .welcome-emblem{width:118px;height:80px;margin:0 auto 22px;border-radius:0;box-shadow:none;background:transparent;overflow:visible;}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) .welcome-emblem img{content:url('selected-wings-icon.png');object-fit:contain;border-radius:0;filter:drop-shadow(0 16px 20px rgba(0,0,0,.30));}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) h2{font-size:40px;line-height:.98;text-align:center;color:#fff;letter-spacing:-.055em;margin:0 auto 12px;text-shadow:0 2px 16px rgba(0,0,0,.28);}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) .welcome-subtitle{color:rgba(255,255,255,.90);font-size:16px;text-align:center;margin:0 auto 180px;max-width:330px;}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) .stacked-actions{gap:12px;}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) button{min-height:60px;border-radius:22px;font-size:16px;}
+.onboarding-card:has(.onboard-step[data-step="welcome"].active) .ghost{background:rgba(255,255,255,.94);color:#08233f;border:0;}
+.onboarding-top .hero-badge{background:linear-gradient(135deg,#064271,#0780cb);}
+.onboard-step h2,.access-card h2{font-size:30px;line-height:1.02;letter-spacing:-.05em;}
+
+/* Home */
+.home-screen-v51{min-height:100vh;}
+.home-topbar-v51{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 10px;}
+.brand-lockup-v51{display:flex;align-items:center;gap:10px;font-weight:950;color:var(--primary);font-size:14px;line-height:1.05;letter-spacing:-.03em;}
+.brand-lockup-v51 img{width:62px;height:40px;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(7,42,77,.12));}
+.top-actions-v51{display:flex;gap:8px;}
+.icon-only-v51{width:46px;height:46px;min-height:46px;padding:0;border-radius:50%;background:#e9f2fa;color:#123a5d;box-shadow:none;font-size:19px;}
+.hero-main-v51{height:168px;border-radius:28px;position:relative;overflow:hidden;background:#061e36;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.7);margin-bottom:-42px;}
+.hero-main-v51::before{content:"";position:absolute;inset:0;background:url('hero-photo.jpg') center 45%/cover no-repeat;animation:papSoftZoom 18s ease-in-out infinite alternate;filter:saturate(1.06) contrast(1.04);}
+.hero-overlay-v51{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,16,30,.18) 0%,rgba(2,16,30,.20) 45%,rgba(2,16,30,.80) 100%);}
+.hero-content-v51{position:absolute;left:20px;right:20px;bottom:50px;color:#fff;}
+.hero-tag-v51{display:inline-flex;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.38);background:rgba(255,255,255,.18);backdrop-filter:blur(10px);font-size:12px;font-weight:900;margin-bottom:8px;}
+.hero-content-v51 h2{margin:0;font-size:25px;line-height:1.04;letter-spacing:-.05em;color:#fff;text-shadow:0 2px 15px rgba(0,0,0,.28);}
+.hero-content-v51 p{margin:4px 0 0;color:rgba(255,255,255,.88);font-size:13px;}
+.flight-status-card-v51{position:relative;z-index:2;margin:0 18px 14px;padding:12px;background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.8);box-shadow:0 18px 42px rgba(7,42,77,.15);border-radius:23px;display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;}
+.aircraft-thumb-v51{width:60px;height:60px;border-radius:18px;background:url('hero-photo.jpg') center/cover no-repeat;box-shadow:0 10px 20px rgba(7,42,77,.13);}
+.status-col-v51 span{display:block;color:var(--muted);font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.12em;}
+.status-col-v51 strong{display:block;color:var(--primary);font-size:17px;line-height:1.12;margin-top:3px;}
+.status-col-v51 small{display:block;color:var(--muted);font-size:12px;margin-top:2px;line-height:1.2;}
+.drive-v51{padding-left:12px;border-left:1px solid #e5eef6;text-align:left;min-width:92px;}
+.drive-v51 strong.ok,.drive-v51 .ok{color:#13915b!important;}
+.drive-v51 strong.warn,.drive-v51 .warn{color:#d08b16!important;}
+.module-grid-v51{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 14px;}
+.module-tile-v51{min-height:132px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:15px;background:rgba(255,255,255,.96);border:1px solid rgba(116,151,181,.20);border-radius:23px;box-shadow:var(--softShadow);color:var(--primary);}
+.module-icon-v51{width:48px;height:48px;border-radius:18px;display:grid;place-items:center;background:#ecf5fc;border:1px solid rgba(7,104,175,.10);font-size:22px;margin-bottom:12px;}
+.module-tile-v51 strong{font-size:16px;line-height:1.12;letter-spacing:-.025em;}
+.module-tile-v51 small{display:block;margin-top:6px;color:var(--muted);font-size:12px;line-height:1.25;}
+.quick-summary-v51{background:#fff;border:1px solid rgba(116,151,181,.18);border-radius:22px;padding:13px;margin-bottom:12px;box-shadow:var(--softShadow);}
+.summary-head-v51{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.summary-head-v51 strong{font-size:17px;color:var(--primary);}
+.summary-head-v51 button{min-height:0;padding:4px 0;background:transparent;box-shadow:none;color:#0672bc;font-size:13px;border-radius:0;}
+.quick-stats-v51{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.quick-stats-v51 div{background:#f7fbff;border:1px solid #e3edf6;border-radius:16px;padding:10px;text-align:center;min-height:75px;}
+.quick-stats-v51 span{display:block;color:var(--muted);font-size:11px;line-height:1.15;}
+.quick-stats-v51 strong{display:block;margin-top:6px;font-size:20px;color:var(--primary2);letter-spacing:-.04em;}
+.last-flight-v51{background:#fff;border:1px solid rgba(116,151,181,.18);border-radius:20px;padding:13px 15px;box-shadow:var(--softShadow);}
+.last-flight-v51 span{display:block;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.14em;font-weight:950;}
+.last-flight-v51 strong{display:block;margin-top:6px;font-size:14px;color:var(--primary);line-height:1.25;}
+
+/* Navegación inferior */
+.bottom-nav-v51{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(430px,100%);z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-top:1px solid rgba(8,35,63,.10);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 10px calc(7px + env(safe-area-inset-bottom));box-shadow:0 -12px 35px rgba(7,42,77,.10);}
+.bottom-nav-v51 button{background:transparent;box-shadow:none;color:#6d7d8f;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:54px;padding:6px 0;border-radius:15px;font-size:20px;}
+.bottom-nav-v51 button small{font-size:10px;font-weight:800;color:inherit;}
+.bottom-nav-v51 button.active{color:var(--accent);background:#fff7e7;}
+
+/* Settings mockup */
+.settings-hero-v51{position:relative;margin:0 -2px 12px;padding:22px 14px 24px;border-radius:0 0 28px 28px;background:linear-gradient(135deg,#f9fcff 0%,#edf5fc 65%,#dcebf5 100%);overflow:hidden;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;}
+.settings-hero-v51::after{content:"";position:absolute;right:-30px;top:0;width:210px;height:110px;background:url('hero-photo.jpg') center/cover no-repeat;opacity:.22;mask-image:linear-gradient(90deg,transparent,black 35%);}
+.settings-hero-v51 h2{font-size:30px;line-height:1;letter-spacing:-.055em;margin:0;color:var(--primary);}
+.settings-hero-v51 p{font-size:14px;margin:5px 0 0;color:var(--muted);}
+.back-v51{z-index:2;background:transparent!important;box-shadow:none!important;border:0!important;color:var(--primary)!important;font-size:24px;width:42px;height:42px;min-height:42px;}
+.role-badge{position:relative;z-index:2;background:#fff;border-color:#e2edf5;}
+.settings-group-v51{background:rgba(255,255,255,.96);border:1px solid rgba(116,151,181,.19);border-radius:22px;padding:14px;margin-bottom:12px;box-shadow:var(--softShadow);}
+.settings-group-v51 h3{margin:0 0 10px;font-size:20px;letter-spacing:-.035em;color:var(--primary);}
+.settings-title-row-v51{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.settings-title-row-v51 h3{margin:0;}
+.text-action-v51{background:transparent!important;box-shadow:none!important;min-height:auto;padding:0;color:#0876c2;font-size:13px;border-radius:0;}
+.profile-card-v51,.aircraft-settings-card-v51{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:#fff;border:1px solid #e4eef6;box-shadow:0 8px 18px rgba(7,42,77,.05);margin-bottom:12px;}
+.profile-avatar-v51,.aircraft-icon-v51{width:54px;height:54px;border-radius:17px;background:#ecf5fc;color:#0b4978;display:grid;place-items:center;font-size:24px;}
+.profile-info-v51 strong,.aircraft-settings-info-v51 strong{display:block;color:var(--primary);font-size:16px;}
+.profile-info-v51 span,.aircraft-settings-info-v51 span{display:block;color:var(--muted);font-size:12px;margin-top:2px;}
+.profile-form-v51,.aircraft-form-v51{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.profile-form-v51 .form-actions{grid-column:1/-1;}
+.drive-card-clean-v51{background:linear-gradient(180deg,#ffffff,#f8fbff);}
+.status-pill-v51{border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;background:#eaf8f0;color:#15915b;}
+.drive-main-row-v51{display:flex;align-items:center;gap:13px;padding:12px;border-radius:18px;background:#fff;border:1px solid #e4eef6;margin-bottom:12px;}
+.drive-logo-v51{width:58px;height:58px;border-radius:16px;background:conic-gradient(from 210deg,#2aa752,#fbbc04,#4285f4,#2aa752);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:900;}
+.drive-status-v51{background:transparent!important;border:0!important;padding:0!important;margin:0!important;color:var(--muted)!important;font-size:13px;line-height:1.35;}
+.drive-status-v51 b{color:var(--primary)!important;font-size:15px;}
+.compact-form-v51{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.mini-check-v51{font-size:12px!important;line-height:1.25;}
+.drive-actions-v51{display:grid!important;grid-template-columns:1fr 1fr;gap:10px;}
+.drive-actions-v51 button:first-child{grid-column:1/-1;}
+.list-actions-v51{display:grid;gap:8px;}
+.row-action-v51,.file-pill-v51{width:100%;display:flex;align-items:center;gap:12px;justify-content:flex-start;text-align:left;min-height:64px;padding:11px 12px;border-radius:17px;background:#fff!important;color:var(--primary)!important;border:1px solid #e4eef6!important;box-shadow:none!important;position:relative;overflow:hidden;}
+.row-action-v51 span,.file-pill-v51 span{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:#eef6fc;font-size:20px;}
+.row-action-v51 strong,.file-pill-v51 strong{display:block;font-size:15px;line-height:1.1;}
+.row-action-v51 small,.file-pill-v51 small{display:block;color:var(--muted);font-size:12px;margin-top:3px;}
+.file-pill-v51 input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.advanced-details-v51{padding:0;overflow:hidden;}
+.advanced-details-v51 summary{list-style:none;padding:15px 16px;font-weight:900;color:var(--primary);cursor:pointer;}
+.advanced-details-v51 summary::-webkit-details-marker{display:none;}
+.admin-panel-v51{padding:14px;border-top:1px solid #e7eff6;}
+.admin-heading h3{font-size:18px;margin-bottom:4px;}
+.danger-admin-zone{border-top:1px solid #ffe0e0!important;}
+.compact-aircraft-summary{box-shadow:none;border-radius:18px;background:#f8fbff;}
+
+/* módulos secundarios más simples */
+.screen:not(.home-screen-v51):not(.settings-screen-v51) .screen-title{position:sticky;top:0;z-index:8;margin:0 -12px 12px;padding:12px;background:rgba(248,251,254,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(8,35,63,.08);}
+.screen-title h2{font-size:25px;letter-spacing:-.045em;}
+.form-grid{gap:10px;}
+input,select{border-radius:15px;background:#fff;min-height:48px;font-size:16px;}
+label{font-size:12px;font-weight:850;color:#687b90;}
+.wb-input-row{border-radius:17px;background:#fff;padding:10px;margin-bottom:8px;border:1px solid #e5eef6;}
+.warning{border-radius:18px;}
+
+@media(max-width:430px){
+  main{padding-left:10px;padding-right:10px;}
+  .mobile-shell{padding-left:0;padding-right:0;}
+  .home-topbar-v51{padding-left:2px;padding-right:2px;}
+  .hero-main-v51{height:160px;border-radius:27px;}
+  .flight-status-card-v51{margin-left:12px;margin-right:12px;grid-template-columns:54px 1fr;}
+  .aircraft-thumb-v51{width:54px;height:54px;}
+  .drive-v51{grid-column:1/-1;border-left:0;border-top:1px solid #e5eef6;padding-left:0;padding-top:10px;display:flex;align-items:center;justify-content:space-between;}
+  .module-grid-v51{grid-template-columns:1fr 1fr;}
+  .module-tile-v51{min-height:126px;padding:13px;}
+  .module-icon-v51{width:44px;height:44px;margin-bottom:10px;}
+  .module-tile-v51 strong{font-size:15px;}
+  .quick-stats-v51{grid-template-columns:1fr 1fr 1fr;}
+  .quick-stats-v51 div{padding:9px 6px;}
+  .quick-stats-v51 strong{font-size:18px;}
+  .profile-form-v51,.aircraft-form-v51,.compact-form-v51{grid-template-columns:1fr;}
+  .drive-actions-v51{grid-template-columns:1fr;}
+}
+@media(max-width:360px){
+  .module-grid-v51{grid-template-columns:1fr;}
+  .quick-stats-v51{grid-template-columns:1fr;}
+}
+.onboarding-gate:not(.hidden) ~ .bottom-nav-v51,
+.access-gate:not(.hidden) ~ .bottom-nav-v51,
+body.access-locked .bottom-nav-v51{display:none!important;}

@@ -50,7 +50,7 @@ const AIRCRAFTS = [
 const STORAGE_KEY = 'cpc_flights_v1';
 const PROFILE_KEY = 'cpc_profile_v1';
 const HISTORICAL_HOURS_KEY = 'cpc_historical_hours_v1';
-const APP_VERSION = 'v5.0';
+const APP_VERSION = 'v5.1';
 const DRIVE_SETTINGS_KEY = 'pap_drive_settings_v1';
 const LOCAL_BACKUP_KEY = 'pap_local_backup_v1';
 const GOOGLE_DRIVE_CLIENT_ID = '409903213014-hi9t7n1h67gno0egn7ak5h4ms5fo9ml3.apps.googleusercontent.com'; // ID OAuth público de la app para Google Drive.
@@ -630,13 +630,17 @@ function renderHomeDashboard(){
   const pilotEl = document.getElementById('homePilotIdentity');
   const mainEl = document.getElementById('homeMainAircraftCard');
   const pilotName = [profile.rank, profile.name].filter(Boolean).join(' ') || 'Tripulante';
-  const aircraftLine = `Aeronave actual: ${(cfg.currentRegistration || cfg.mainRegistration) || 'No configurada'}${cfg.enduranceHours ? ' · Autonomía ' + cfg.enduranceHours + ' h' : ''}`;
+  const currentReg = (cfg.currentRegistration || cfg.mainRegistration) || 'No configurada';
+  const aircraftLine = currentReg;
+  const enduranceLine = cfg.enduranceHours ? 'Autonomía: ' + cfg.enduranceHours + ' h' : 'Autonomía pendiente';
   if(pilotEl) pilotEl.textContent = pilotName;
   if(mainEl) mainEl.textContent = aircraftLine;
   const pilotMirror = document.getElementById('homePilotIdentityMirror');
   const mainMirror = document.getElementById('homeMainAircraftMirror');
   if(pilotMirror) pilotMirror.textContent = pilotName;
-  if(mainMirror) mainMirror.textContent = aircraftLine;
+  if(mainMirror) mainMirror.textContent = enduranceLine;
+  const settingsPreview = document.getElementById('settingsProfilePreview');
+  if(settingsPreview) settingsPreview.textContent = pilotName;
   const driveMini = document.getElementById('homeDriveMini');
   if(driveMini){
     const ds = getDriveSettings();
@@ -1605,16 +1609,15 @@ function renderDriveStatus(message){
   const clientOk = !!getConfiguredGoogleClientId();
   const lastDrive = s.lastDriveBackupAt ? new Date(s.lastDriveBackupAt).toLocaleString() : 'Sin copia en Drive';
   const connected = !!driveAccessToken || !!s.lastDriveBackupAt;
-  const stateText = driveAccessToken ? 'Google Drive conectado' : (connected ? 'Google Drive configurado' : 'Google Drive no conectado');
-  const warning = location.protocol === 'file:' ? '<br><b>Nota:</b> Google Drive funciona desde HTTPS, por ejemplo GitHub Pages.' : '';
+  const stateText = connected ? 'Google Drive conectado' : 'Google Drive no conectado';
   const backupBtn = document.getElementById('driveBackupNow');
   const connectBtn = document.getElementById('connectDrive');
   const restoreBtn = document.getElementById('driveRestoreNow');
   if (backupBtn) backupBtn.textContent = 'Sincronizar ahora';
-  if (connectBtn) connectBtn.textContent = connected ? 'Cambiar cuenta Google' : 'Conectar Google Drive';
+  if (connectBtn) connectBtn.textContent = connected ? 'Cambiar cuenta' : 'Conectar Google Drive';
   if (restoreBtn) restoreBtn.textContent = 'Restaurar respaldo';
   el.classList.remove('hidden');
-  el.innerHTML = `${message ? `<b>${escapeHtml(message)}</b><br>` : ''}<b>${escapeHtml(stateText)}</b><br>Última copia: ${escapeHtml(lastDrive)}.${clientOk ? '' : '<br><b>Falta configurar Google Drive.</b>'}${warning}`;
+  el.innerHTML = `<b>${escapeHtml(stateText)}</b><br><span>Última copia: ${escapeHtml(lastDrive)}</span>${clientOk ? '' : '<br><b>Falta configurar Google Drive.</b>'}`;
 }
 function daysSince(dateIso){
   if (!dateIso) return Infinity;
